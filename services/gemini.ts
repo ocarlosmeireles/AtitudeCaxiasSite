@@ -2,20 +2,13 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { DevotionalResponse } from '../types';
 
-let ai: GoogleGenAI | null = null;
-
-const getAI = () => {
-  if (!ai) {
-    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  }
-  return ai;
-};
-
 const modelName = "gemini-3-flash-preview";
 
 export const generateDailyDevotional = async (): Promise<DevotionalResponse> => {
   try {
-    const response = await getAI().models.generateContent({
+    // Always create a new instance right before making an API call
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
       model: modelName,
       contents: "Gere um devocional cristão curto e inspirador para hoje. Foco em esperança, fé ou propósito. Use EXCLUSIVAMENTE a versão NVI (Nova Versão Internacional) da Bíblia para os versículos. O tom deve ser jovem e moderno.",
       config: {
@@ -50,7 +43,9 @@ export const generateDailyDevotional = async (): Promise<DevotionalResponse> => 
 
 export const generateStudyGuide = async (sermonTitle: string, description: string): Promise<string> => {
   try {
-    const response = await getAI().models.generateContent({
+    // Always create a new instance right before making an API call
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
       model: modelName,
       contents: `Você é um assistente de teologia. Com base na pregação "${sermonTitle}" que trata sobre "${description}", gere um guia de estudo bíblico para pequenos grupos.
       
@@ -71,7 +66,9 @@ export const generateStudyGuide = async (sermonTitle: string, description: strin
 // Fix: Added missing export generateDiscipleshipContent
 export const generateDiscipleshipContent = async (topic: string): Promise<string> => {
   try {
-    const response = await getAI().models.generateContent({
+    // Always create a new instance right before making an API call
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
       model: modelName,
       contents: `Gere um conteúdo de estudo bíblico profundo sobre o tema: "${topic}". 
       O conteúdo deve ser formatado em Markdown, com títulos, subtítulos, versículos bíblicos (NVI) e pontos de aplicação prática.`,
@@ -89,7 +86,9 @@ export const improveAdminText = async (draftText: string, type: 'NEWS' | 'NOTICE
     else if (type === 'NOTICE') context = "Melhore este texto para um aviso rápido e urgente da igreja. Seja direto, claro e amigável.";
     else if (type === 'WELCOME') context = "Melhore este texto de boas-vindas para o site da igreja. Deve ser caloroso, evangelístico, convidativo para quem não conhece Jesus e inspirador. Mantenha em 1 ou 2 parágrafos curtos.";
 
-    const response = await getAI().models.generateContent({
+    // Always create a new instance right before making an API call
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
       model: modelName,
       contents: `${context} Texto original: "${draftText}"`,
     });

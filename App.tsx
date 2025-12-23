@@ -8,7 +8,7 @@ import { generateDailyDevotional, improveAdminText } from './services/gemini';
 import { subscribeToData, saveData, deleteData, uploadImage } from './services/firebase';
 import { 
   ArrowRight, Sparkles, MapPin, Clock, Calendar, Send, ChevronRight, ChevronLeft, ChevronDown, ChevronUp,
-  MessageCircle, HeartHandshake, Users, PlayCircle, FileText, Lock, Plus, Trash2, CheckCircle, Wand2, Home, ShieldCheck, BookOpen, GraduationCap, ArrowUpRight, Heart, Quote, CreditCard, Smartphone, Map, Search, Edit2, Save, X, LogOut, Video, Globe, Mic2, Smile, LayoutDashboard, Image as ImageIcon, List, User, Phone, Copy, Check, Hammer, TrendingUp, Gift, Footprints, Droplets, ExternalLink, Paperclip, Monitor, Star, Music, Target, Layers, Lightbulb, UserPlus, Award, Info, Play, DollarSign, Camera, Instagram, SmilePlus, UploadCloud, Crown, LayoutTemplate, Ticket, Image, CalendarCheck
+  MessageCircle, HeartHandshake, Users, PlayCircle, FileText, Lock, Plus, Trash2, CheckCircle, Wand2, Home, ShieldCheck, BookOpen, GraduationCap, ArrowUpRight, Heart, Quote, CreditCard, Smartphone, Map, Search, Edit2, Save, X, LogOut, Video, Globe, Mic2, Smile, LayoutDashboard, Image as ImageIcon, List, User, Phone, Copy, Check, Hammer, TrendingUp, Gift, Footprints, Droplets, ExternalLink, Paperclip, Monitor, Star, Music, Target, Layers, Lightbulb, UserPlus, Award, Info, Play, DollarSign, Camera, Instagram, SmilePlus, UploadCloud, Crown, LayoutTemplate, Ticket, Image, CalendarCheck, ArrowUp
 } from 'lucide-react';
 
 // --- UTILS ---
@@ -43,7 +43,7 @@ const INITIAL_HOME_CONFIG: HomeConfig = {
   enableCellSearch: false, // Default hidden
   sectionOrder: [
     'hero', 'ticker', 'tenyears', 'pastoral', 'servicetimes', 'values', 'growthpath', 
-    'highlights', 'kids', 'testimonies', 'volunteer_parallax', 'mps', 'cellvision', 'social', 'expansion', 
+    'highlights', 'prayer_request', 'kids', 'testimonies', 'volunteer_parallax', 'mps', 'cellvision', 'social', 'expansion', 
     'faq', 'cells', 'instagram'
   ]
 };
@@ -99,7 +99,7 @@ import {
   TickerSection, TenYearsSection, ServiceTimesSection, ValuesSection, 
   GrowthPath, KidsSection, TestimoniesSection, ParallaxSection, 
   MPSSection, SocialActionSection, ExpansionSection, FAQSection, 
-  InstagramSection, FamilyBusinessSection, AppDownloadSection, WorshipSection, SeriesSection, VolunteerSection, ParallaxVolunteerSection, NotebookLMPodcastSection, CellVisionSection, UrgentNoticePopup
+  InstagramSection, FamilyBusinessSection, AppDownloadSection, WorshipSection, SeriesSection, VolunteerSection, ParallaxVolunteerSection, NotebookLMPodcastSection, CellVisionSection, UrgentNoticePopup, PrayerSection
 } from './components/sections/HomeComponents';
 
 import { StepModal, DonationModal } from './components/modals/GeneralModals';
@@ -108,6 +108,7 @@ import { StepModal, DonationModal } from './components/modals/GeneralModals';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState<NavigationTab>(NavigationTab.HOME);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   
   // Data States
   const [news, setNews] = useState<NewsItem[]>([]);
@@ -126,6 +127,19 @@ const App = () => {
   
   const [showDonationModal, setShowDonationModal] = useState(false);
   const [activeStepModal, setActiveStepModal] = useState<'VISITOR' | 'DECISION' | 'BAPTISM' | null>(null);
+
+  // Scroll logic
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Scroll to top on tab change
   useEffect(() => {
@@ -284,6 +298,7 @@ const App = () => {
         </div>
       </div>
     ),
+    'prayer_request': <PrayerSection onNavigate={setActiveTab} />,
     'kids': <KidsSection imageUrl={homeConfig.kidsImage} />,
     'testimonies': <TestimoniesSection />,
     'volunteer_parallax': <ParallaxVolunteerSection onNavigate={setActiveTab} />,
@@ -361,6 +376,15 @@ const App = () => {
       {activeTab === NavigationTab.BAPTISM && <BaptismView />}
       {activeTab === NavigationTab.ABOUT && <AboutView data={aboutData} tenYearsData={tenYearsData} />}
       {activeTab === NavigationTab.GENERATOR && <PhotoGeneratorView frames={photoFrames} />}
+
+      {/* Floating Scroll to Top Button */}
+      <button 
+        onClick={scrollToTop}
+        className={`fixed bottom-8 right-8 z-[100] w-14 h-14 rounded-full bg-brand-orange text-white shadow-2xl flex items-center justify-center transition-all duration-500 transform hover:scale-110 active:scale-95 group ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0 pointer-events-none'}`}
+      >
+        <div className="absolute inset-0 bg-white/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity animate-pulse"></div>
+        <ArrowUp size={24} className="relative z-10 group-hover:-translate-y-1 transition-transform" />
+      </button>
     </Layout>
   );
 }

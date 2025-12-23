@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NavigationTab, Notice, TenYearsData, WelcomeSectionData, HomeConfig } from '../../types';
 import { 
   Heart, BookOpen, Music, HeartHandshake, User, CheckCircle, ChevronRight, 
-  TrendingUp, CreditCard, Info, UserPlus, Globe, Target, Quote, Crown, Instagram, ExternalLink, Activity, ArrowRight, Calendar, Star, Send, Briefcase, Home, Smartphone, Download, X, Mic2, Monitor, AudioWaveform, Play, Pause, Headphones, Sparkles, Clock, MapPin, ArrowUpRight, Timer, Coffee, Users, AlertTriangle, Radio, Flag, Diamond
+  TrendingUp, CreditCard, Info, UserPlus, Globe, Target, Quote, Crown, Instagram, ExternalLink, Activity, ArrowRight, Calendar, Star, Send, Briefcase, Home, Smartphone, Download, X, Mic2, Monitor, AudioWaveform, Play, Pause, Headphones, Sparkles, Clock, MapPin, ArrowUpRight, Timer, Coffee, Users, AlertTriangle, Radio, Flag, Diamond, Check
 } from 'lucide-react';
 
 // 0. URGENT NOTICE POPUP
@@ -292,7 +292,7 @@ export const CellVisionSection = () => (
                         <h4 className="text-xl font-black text-zinc-900 dark:text-white mb-3">Comunhão Real</h4>
                         <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">Não caminhe sozinho. Encontre amigos que vão orar por você e celebrar suas vitórias.</p>
                     </div>
-                    <div className="bg-white dark:bg-zinc-950 p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-xl hover:-translate-y-2 transition-transform duration-300 group mt-0 md:mt-12">
+                    <div className="bg-white dark:bg-zinc-950 p-8 rounded-3xl border border-zinc-200 dark:border-white/5 shadow-xl hover:-translate-y-2 transition-transform duration-300 group mt-0 md:mt-12">
                         <div className="w-14 h-14 bg-blue-100 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center text-blue-600 mb-6 group-hover:scale-110 transition-transform">
                             <HeartHandshake size={28}/>
                         </div>
@@ -305,6 +305,62 @@ export const CellVisionSection = () => (
                         </div>
                         <h4 className="text-xl font-black text-zinc-900 dark:text-white mb-3">Crescimento</h4>
                         <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">É no pequeno grupo que desenvolvemos nossos dons e aprendemos a servir.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+// 8. PRAYER REQUEST SECTION
+export const PrayerSection = ({ onNavigate }: { onNavigate: (tab: NavigationTab) => void }) => (
+    <div className="py-24 relative overflow-hidden bg-zinc-950">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1544531586-fde5298cdd40?q=80&w=2070')] opacity-10 bg-cover bg-center"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent"></div>
+        
+        <div className="max-w-7xl mx-auto px-8 relative z-10">
+            <div className="flex flex-col lg:flex-row gap-16 items-center">
+                <div className="lg:w-1/2">
+                    <span className="text-brand-orange font-bold uppercase tracking-[0.3em] text-[10px] mb-4 block">Intercessão & Cuidado</span>
+                    <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-[0.9] mb-8">
+                        PODEMOS ORAR <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-red-500">POR VOCÊ?</span>
+                    </h2>
+                    <p className="text-zinc-400 text-lg md:text-xl font-medium leading-relaxed mb-10 max-w-lg">
+                        Acreditamos no poder da oração. Não importa qual seja a sua dor ou necessidade, nossa equipe de intercessores está pronta para clamar pela sua vitória.
+                    </p>
+                    <button 
+                        onClick={() => onNavigate(NavigationTab.PRAYER)}
+                        className="bg-white text-zinc-950 hover:bg-brand-orange hover:text-white px-10 py-5 rounded-full font-black uppercase tracking-widest text-[10px] shadow-2xl transition-all flex items-center gap-3 transform hover:scale-105"
+                    >
+                        <Send size={18} /> Entregar meu Pedido
+                    </button>
+                </div>
+                
+                <div className="lg:w-1/2">
+                    <div className="bg-white/5 backdrop-blur-lg border border-white/10 p-10 rounded-[3rem] shadow-2xl">
+                        <div className="flex items-center gap-6 mb-8">
+                            <div className="w-16 h-16 bg-brand-orange/20 rounded-2xl flex items-center justify-center text-brand-orange">
+                                <Activity size={32} />
+                            </div>
+                            <div>
+                                <h4 className="text-white font-black uppercase text-xl">Atendimento 24h</h4>
+                                <p className="text-zinc-500 text-sm">Sua oração chega diretamente ao nosso altar digital.</p>
+                            </div>
+                        </div>
+                        <div className="space-y-6">
+                            <div className="flex gap-4 items-start">
+                                <div className="w-6 h-6 rounded-full bg-brand-orange/10 flex items-center justify-center shrink-0"><Check size={12} className="text-brand-orange"/></div>
+                                <p className="text-zinc-400 text-sm">Pedidos lidos por pastores e intercessores treinados.</p>
+                            </div>
+                            <div className="flex gap-4 items-start">
+                                <div className="w-6 h-6 rounded-full bg-brand-orange/10 flex items-center justify-center shrink-0"><Check size={12} className="text-brand-orange"/></div>
+                                <p className="text-zinc-400 text-sm">Confidencialidade total e respeito à sua privacidade.</p>
+                            </div>
+                            <div className="flex gap-4 items-start">
+                                <div className="w-6 h-6 rounded-full bg-brand-orange/10 flex items-center justify-center shrink-0"><Check size={12} className="text-brand-orange"/></div>
+                                <p className="text-zinc-400 text-sm">Apoio emocional e espiritual em momentos de crise.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
