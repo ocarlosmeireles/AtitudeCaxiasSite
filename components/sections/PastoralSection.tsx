@@ -1,265 +1,107 @@
 
-import React, { useState } from 'react';
-import { CalendarCheck, X, Loader2, Quote, ArrowRight, User, MessageSquare, CheckCircle2, ChevronRight, Heart, Star, Calendar, PlayCircle, Smartphone } from 'lucide-react';
+import React from 'react';
+import { CalendarCheck, PlayCircle, Star, Quote, Heart, ArrowRight } from 'lucide-react';
 import { WelcomeSectionData } from '../../types';
-import { saveData } from '../../services/firebase';
-
-const CabinetWizard = ({ isOpen, onClose, pastorName, pastorName2 }: any) => {
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    preferredPastor: pastorName,
-    reason: '',
-  });
-
-  if (!isOpen) return null;
-
-  const nextStep = () => setStep(s => s + 1);
-  const prevStep = () => setStep(s => s - 1);
-
-  const handleFinish = async () => {
-    setLoading(true);
-    try {
-      await saveData('cabinetRequests', { 
-        ...formData, 
-        createdAt: Date.now(), 
-        status: 'pending' 
-      });
-      setStep(4);
-    } catch (e) {
-      alert("Houve um erro na conexão. Tente novamente.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const steps = [
-    { title: 'Liderança', icon: <User size={18} /> },
-    { title: 'Motivo', icon: <MessageSquare size={18} /> },
-    { title: 'Contato', icon: <Smartphone size={18} /> },
-    { title: 'Concluído', icon: <CheckCircle2 size={18} /> },
-  ];
-
-  return (
-    <div className="fixed inset-0 z-[70] bg-zinc-950/90 backdrop-blur-xl flex items-center justify-center p-4 animate-fade-in">
-      <div className="bg-white rounded-[3.5rem] w-full max-w-xl overflow-hidden shadow-2xl relative border border-zinc-100 animate-slide-up">
-        
-        {/* Barra de Progresso Visual */}
-        <div className="bg-zinc-50 p-10 border-b border-zinc-100 relative">
-           <button onClick={onClose} className="absolute top-8 right-8 text-zinc-400 hover:text-brand-orange transition-colors p-2 bg-white rounded-full shadow-sm border border-zinc-100"><X size={20}/></button>
-           <div className="flex items-center gap-3 mb-8">
-              {steps.map((s, idx) => (
-                <div key={idx} className="flex-grow flex flex-col gap-2">
-                   <div className={`h-1.5 rounded-full transition-all duration-700 ${idx + 1 <= step ? 'bg-brand-orange shadow-[0_0_15px_rgba(255,85,0,0.3)]' : 'bg-zinc-200'}`}></div>
-                </div>
-              ))}
-           </div>
-           <h3 className="text-2xl font-black uppercase tracking-tighter text-zinc-900 flex items-center gap-3">
-              {steps[step-1].icon} {steps[step-1].title}
-           </h3>
-        </div>
-
-        <div className="p-12 min-h-[400px] flex flex-col">
-           {step === 1 && (
-             <div className="space-y-6 animate-fade-in">
-                <p className="text-zinc-500 text-sm font-medium">Nossos pastores estão prontos para te ouvir. Com quem você gostaria de falar?</p>
-                <div className="grid grid-cols-1 gap-4">
-                   <button 
-                      onClick={() => { setFormData({...formData, preferredPastor: pastorName}); nextStep(); }}
-                      className={`group p-8 rounded-3xl border-2 text-left transition-all ${formData.preferredPastor === pastorName ? 'border-brand-orange bg-orange-50/30' : 'border-zinc-100 hover:border-zinc-200 hover:bg-zinc-50'}`}
-                   >
-                      <h4 className="text-xl font-black uppercase text-zinc-900 group-hover:text-brand-orange transition-colors">{pastorName}</h4>
-                      <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">Pastor Presidente</p>
-                   </button>
-                   {pastorName2 && (
-                     <button 
-                        onClick={() => { setFormData({...formData, preferredPastor: pastorName2}); nextStep(); }}
-                        className={`group p-8 rounded-3xl border-2 text-left transition-all ${formData.preferredPastor === pastorName2 ? 'border-brand-orange bg-orange-50/30' : 'border-zinc-100 hover:border-zinc-200 hover:bg-zinc-50'}`}
-                     >
-                        <h4 className="text-xl font-black uppercase text-zinc-900 group-hover:text-brand-orange transition-colors">{pastorName2}</h4>
-                        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">Pastora Presidente</p>
-                     </button>
-                   )}
-                </div>
-             </div>
-           )}
-
-           {step === 2 && (
-              <div className="space-y-6 animate-fade-in flex flex-col h-full">
-                 <p className="text-zinc-500 text-sm font-medium">Isso nos ajuda a preparar melhor o tempo com você.</p>
-                 <div className="grid grid-cols-1 gap-3">
-                    {['Oração e Libertação', 'Casamento e Família', 'Dúvidas e Aconselhamento', 'Apresentação de Crianças'].map((r) => (
-                       <button 
-                          key={r}
-                          onClick={() => { setFormData({...formData, reason: r}); nextStep(); }}
-                          className={`p-6 rounded-2xl border-2 text-left transition-all text-sm font-bold uppercase tracking-wider ${formData.reason === r ? 'border-brand-orange bg-orange-50/30 text-brand-orange' : 'border-zinc-50 hover:border-zinc-100 text-zinc-600'}`}
-                       >
-                          {r}
-                       </button>
-                    ))}
-                 </div>
-                 <button onClick={prevStep} className="text-zinc-400 text-[10px] font-black uppercase tracking-widest mt-10 hover:text-brand-orange transition-colors flex items-center gap-2">← Voltar para escolha</button>
-              </div>
-           )}
-
-           {step === 3 && (
-              <div className="space-y-8 animate-fade-in flex-grow flex flex-col">
-                 <div className="space-y-6">
-                    <div className="relative group">
-                       <label className="absolute -top-3 left-6 bg-white px-2 text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400 group-focus-within:text-brand-orange transition-colors">Nome Completo</label>
-                       <input 
-                          className="w-full bg-transparent border-2 border-zinc-100 p-5 rounded-2xl outline-none focus:border-brand-orange transition-all font-bold text-zinc-900"
-                          value={formData.name}
-                          onChange={e => setFormData({...formData, name: e.target.value})}
-                          placeholder="Ex: Pedro Henrique"
-                       />
-                    </div>
-                    <div className="relative group">
-                       <label className="absolute -top-3 left-6 bg-white px-2 text-[9px] font-black uppercase tracking-[0.2em] text-zinc-400 group-focus-within:text-brand-orange transition-colors">WhatsApp para Agendamento</label>
-                       <input 
-                          className="w-full bg-transparent border-2 border-zinc-100 p-5 rounded-2xl outline-none focus:border-brand-orange transition-all font-bold text-zinc-900"
-                          value={formData.phone}
-                          onChange={e => setFormData({...formData, phone: e.target.value})}
-                          placeholder="(21) 99999-9999"
-                       />
-                    </div>
-                 </div>
-                 <div className="pt-6 mt-auto">
-                    <button 
-                       onClick={handleFinish} 
-                       disabled={!formData.name || !formData.phone || loading}
-                       className="w-full bg-zinc-950 text-white py-6 rounded-3xl font-black uppercase text-xs tracking-[0.2em] hover:bg-brand-orange transition-all shadow-2xl disabled:opacity-50 flex items-center justify-center gap-3"
-                    >
-                       {loading ? <Loader2 className="animate-spin"/> : 'Confirmar Solicitação'}
-                    </button>
-                    <button onClick={prevStep} className="w-full text-zinc-400 text-[10px] font-black uppercase tracking-widest mt-6">Ajustar Detalhes</button>
-                 </div>
-              </div>
-           )}
-
-           {step === 4 && (
-              <div className="text-center py-12 animate-fade-in flex flex-col items-center justify-center flex-grow">
-                 <div className="w-28 h-28 bg-green-50 rounded-full flex items-center justify-center mb-8 text-green-500 shadow-inner border border-green-100">
-                    <CheckCircle2 size={56}/>
-                 </div>
-                 <h4 className="text-3xl font-black text-zinc-900 uppercase tracking-tighter mb-6">Pedido Confirmado!</h4>
-                 <div className="bg-zinc-50 p-8 rounded-[2rem] border border-zinc-100 mb-10 max-w-sm">
-                    <p className="text-zinc-500 text-sm font-medium leading-relaxed">
-                       Sua mensagem para o(a) **{formData.preferredPastor}** foi enviada com sucesso! <br/><br/>
-                       A nossa **secretaria paroquial** entrará em contato com você via WhatsApp para confirmar o horário disponível na agenda oficial.
-                    </p>
-                 </div>
-                 <button onClick={onClose} className="bg-brand-orange text-white px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:scale-105 transition-transform shadow-xl">Entendido</button>
-              </div>
-           )}
-        </div>
-      </div>
-    </div>
-  )
-};
 
 export const PastoralSection = ({ data }: { data: WelcomeSectionData }) => {
-  const [modalOpen, setModalOpen] = useState(false);
+  if (!data.pastorName) return null;
 
   return (
-    <section className="py-40 px-8 bg-white transition-colors duration-1000 relative overflow-hidden">
-       {/* Elementos Decorativos */}
-       <div className="absolute top-0 left-0 w-full h-[600px] bg-gradient-to-b from-zinc-50 to-transparent opacity-60 -z-10"></div>
-       <div className="absolute top-1/4 right-[-10%] w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-[140px] pointer-events-none"></div>
-       
-       <CabinetWizard isOpen={modalOpen} onClose={() => setModalOpen(false)} pastorName={data.pastorName} pastorName2={data.pastorName2} />
+    <section className="py-40 px-8 bg-white dark:bg-zinc-950 transition-colors duration-1000 relative overflow-hidden text-left">
+       {/* High-End Ambient Lighting */}
+       <div className="absolute top-1/4 right-[-10%] w-[600px] h-[600px] bg-brand-orange/5 rounded-full blur-[140px] pointer-events-none animate-pulse-slow"></div>
+       <div className="absolute bottom-0 left-[-10%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none"></div>
        
        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 lg:gap-32 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-24 lg:gap-32 items-center">
              
-             {/* Esquerda: Fotos Editoriais Simétricas */}
+             {/* Asymmetric Photo Grid (Editorial Style) */}
              <div className="lg:col-span-6 order-2 lg:order-1 relative">
-                <div className="flex flex-col md:flex-row gap-8 items-center lg:items-start relative z-10">
-                   {/* Pastor Principal */}
-                   <div className="w-full md:w-1/2 group animate-reveal">
-                      <div className="aspect-[3/4] rounded-[2.5rem] overflow-hidden shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] border-[16px] border-white transition-all duration-1000 group-hover:scale-[1.03] group-hover:rotate-1 relative bg-zinc-100">
-                         <img src={data.imageUrl} className="w-full h-full object-cover transition-all duration-[2000ms] group-hover:scale-110" alt={data.pastorName} />
-                         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
-                         <div className="absolute bottom-8 left-8 opacity-0 group-hover:opacity-100 transition-all translate-y-6 group-hover:translate-y-0 duration-700">
-                            <h4 className="text-white font-black text-xl uppercase tracking-tighter">{data.pastorName}</h4>
-                            <p className="text-brand-orange text-[9px] font-black uppercase tracking-[0.2em] mt-1">Titular</p>
-                         </div>
+                <div className="flex flex-col md:flex-row gap-12 items-center relative z-10">
+                   {/* Primary Image */}
+                   <div className="w-full md:w-3/5 group">
+                      <div className="aspect-[3/4] rounded-[3.5rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.12)] border-[18px] border-white dark:border-zinc-900 transition-all duration-1000 group-hover:scale-[1.03] group-hover:rotate-2 relative bg-zinc-100 dark:bg-zinc-800">
+                         <img 
+                           src={data.imageUrl} 
+                           className="w-full h-full object-cover transition-all duration-[4000ms] group-hover:scale-110" 
+                           alt={data.pastorName} 
+                         />
+                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       </div>
                    </div>
-
-                   {/* Pastora Cônjuge */}
+                   
+                   {/* Offset Secondary Image */}
                    {data.imageUrl2 && (
-                     <div className="w-full md:w-1/2 group animate-reveal md:mt-24" style={{animationDelay: '0.4s'}}>
-                        <div className="aspect-[3/4] rounded-[2.5rem] overflow-hidden shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] border-[16px] border-white transition-all duration-1000 group-hover:scale-[1.03] group-hover:-rotate-1 relative bg-zinc-100">
-                           <img src={data.imageUrl2} className="w-full h-full object-cover transition-all duration-[2000ms] group-hover:scale-110" alt={data.pastorName2} />
-                           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
-                           <div className="absolute bottom-8 left-8 opacity-0 group-hover:opacity-100 transition-all translate-y-6 group-hover:translate-y-0 duration-700">
-                              <h4 className="text-white font-black text-xl uppercase tracking-tighter">{data.pastorName2}</h4>
-                              <p className="text-brand-orange text-[9px] font-black uppercase tracking-[0.2em] mt-1">Pastora</p>
-                           </div>
+                     <div className="w-full md:w-1/2 group md:mt-32 md:-ml-24">
+                        <div className="aspect-[3/4] rounded-[3rem] overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.08)] border-[15px] border-white dark:border-zinc-900 transition-all duration-1000 group-hover:scale-[1.05] group-hover:-rotate-3 relative bg-zinc-100 dark:bg-zinc-800">
+                           <img 
+                             src={data.imageUrl2} 
+                             className="w-full h-full object-cover transition-all duration-[4000ms] group-hover:scale-110" 
+                             alt={data.pastorName2} 
+                           />
                         </div>
                      </div>
                    )}
                 </div>
                 
-                {/* Carimbo de Autenticidade/Família */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border border-brand-orange/10 rounded-full flex items-center justify-center animate-pulse-slow -z-10">
-                   <div className="w-32 h-32 border-2 border-brand-orange/5 rounded-full"></div>
-                </div>
-                
-                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 bg-white px-10 py-5 rounded-[2.5rem] shadow-2xl border border-zinc-50 flex items-center gap-4 z-20 animate-bounce-slow">
-                   <div className="w-3 h-3 bg-brand-orange rounded-full shadow-[0_0_10px_#FF5500]"></div>
-                   <span className="text-[11px] font-black uppercase tracking-[0.25em] text-zinc-900">Nossos Pastores</span>
+                {/* Float Badge */}
+                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 bg-zinc-900 dark:bg-white px-14 py-7 rounded-[3rem] shadow-2xl flex items-center gap-6 z-20 border border-white/10 group cursor-default">
+                   <div className="w-4 h-4 bg-brand-orange rounded-full shadow-[0_0_20px_rgba(255,85,0,0.8)] animate-pulse"></div>
+                   <span className="text-[11px] font-black uppercase tracking-[0.4em] text-white dark:text-zinc-900">Cobertura Pastoral Atitude</span>
                 </div>
              </div>
 
-             {/* Direita: Conteúdo Editorial */}
-             <div className="lg:col-span-6 space-y-12 order-1 lg:order-2">
-                <div className="animate-reveal">
-                   <div className="inline-flex items-center gap-3 mb-10 px-6 py-2.5 bg-zinc-50 rounded-full border border-zinc-100 shadow-sm">
-                      <Star size={14} className="text-brand-orange fill-current"/>
-                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">Curadoria Pastoral</span>
+             {/* Editorial Content */}
+             <div className="lg:col-span-6 space-y-16 order-1 lg:order-2">
+                <div className="space-y-10">
+                   <div className="inline-flex items-center gap-5 mb-4 px-8 py-3.5 bg-zinc-50 dark:bg-white/5 rounded-full border border-zinc-100 dark:border-white/5 shadow-inner">
+                      <Star size={18} className="text-brand-orange fill-current animate-spin-slow"/>
+                      <span className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-500 dark:text-zinc-400">Pastoreio com Intencionalidade</span>
                    </div>
                    
-                   <h2 className="text-6xl lg:text-8xl font-black text-zinc-900 uppercase tracking-tighter leading-[0.85] mb-12">
-                      {data.titleLine1} <br/>
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-red-600">{data.titleLine2}</span>
+                   <h2 className="text-6xl lg:text-9xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter leading-[0.8] mb-12">
+                      {data.titleLine1 || "UMA FAMÍLIA"} <br/>
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange via-orange-400 to-red-600">
+                         {data.titleLine2 || "PARA PERTENCER"}
+                      </span>
                    </h2>
-                   
+
                    <div className="relative group">
-                      <Quote size={120} className="absolute -top-16 -left-16 text-zinc-50 -z-10 group-hover:text-brand-orange/5 transition-colors duration-1000" />
-                      <p className="text-2xl lg:text-3xl font-light text-zinc-500 leading-snug italic border-l-4 border-brand-orange/20 pl-12 py-4">
-                         {data.text}
+                      <Quote size={140} className="absolute -top-20 -left-20 text-zinc-50 dark:text-white/5 -z-10 transition-transform duration-1000 group-hover:rotate-12 group-hover:scale-110" />
+                      <p className="text-3xl lg:text-5xl font-light text-zinc-500 dark:text-zinc-400 leading-tight italic border-l-8 border-brand-orange/30 pl-14 py-4 font-serif">
+                         "{data.text}"
                       </p>
                    </div>
                 </div>
 
-                <div className="bg-zinc-50/50 p-12 rounded-[3.5rem] border border-zinc-100 shadow-sm animate-slide-up relative overflow-hidden group" style={{animationDelay: '0.6s'}}>
-                   <div className="absolute top-0 right-0 w-32 h-32 bg-brand-orange/5 rounded-bl-full pointer-events-none group-hover:scale-150 transition-transform duration-1000"></div>
+                {/* Interactive CTA Card */}
+                <div className="bg-zinc-50 dark:bg-zinc-900/50 p-14 lg:p-20 rounded-[4.5rem] border border-zinc-100 dark:border-white/5 shadow-sm relative overflow-hidden group/card">
+                   <div className="absolute top-0 right-0 w-48 h-48 bg-brand-orange/5 rounded-bl-full group-hover/card:scale-150 transition-transform duration-1000"></div>
                    
-                   <h5 className="font-black uppercase text-[10px] tracking-[0.3em] text-zinc-400 mb-8 flex items-center gap-2">
-                      <Heart size={16} className="text-brand-orange"/> Mensagem aos Novos Visitantes
+                   <h5 className="font-black uppercase text-[11px] tracking-[0.4em] text-brand-orange mb-10 flex items-center gap-4">
+                      <Heart size={20} fill="currentColor" className="animate-bounce" /> Caminhe Conosco
                    </h5>
-                   <p className="text-zinc-600 text-base font-medium mb-12 leading-relaxed">
-                      Sua presença aqui não é por acaso. Queremos caminhar ao seu lado, oferecendo cuidado pastoral, oração e uma comunidade que se tornou família. Agende um tempo conosco agora mesmo.
+                   
+                   <p className="text-zinc-600 dark:text-zinc-300 text-xl font-medium mb-14 leading-relaxed max-w-lg">
+                      Não acreditamos em igreja de multidões, mas em igreja de indivíduos cuidados um a um. Venha viver o pastoreio Atitude.
                    </p>
                    
-                   <div className="flex flex-col sm:flex-row gap-5">
-                      <button 
-                         onClick={() => setModalOpen(true)}
-                         className="flex-1 bg-zinc-950 text-white px-10 py-6 rounded-3xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-4 hover:bg-brand-orange transition-all shadow-2xl hover:-translate-y-1 active:scale-95 group"
-                      >
-                         <CalendarCheck size={20} className="group-hover:rotate-12 transition-transform" />
-                         Agendar Gabinete
+                   <div className="flex flex-col sm:flex-row gap-8">
+                      <button className="flex-1 bg-zinc-950 dark:bg-white text-white dark:text-zinc-900 px-12 py-8 rounded-[2.5rem] font-black uppercase tracking-widest text-[11px] flex items-center justify-center gap-5 hover:bg-brand-orange dark:hover:bg-brand-orange dark:hover:text-white transition-all shadow-2xl transform hover:-translate-y-1.5 active:scale-95">
+                         <CalendarCheck size={24} /> Agendar Gabinete
                       </button>
-                      <button 
-                         className="flex-1 bg-white border-2 border-zinc-100 text-zinc-900 px-10 py-6 rounded-3xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-4 hover:border-brand-orange hover:text-brand-orange transition-all group"
-                      >
-                         <PlayCircle size={20} className="group-hover:scale-110 transition-transform" />
-                         Vídeo de Boas-Vindas
+                      <button className="flex-1 bg-white dark:bg-zinc-800 border-2 border-zinc-100 dark:border-white/5 text-zinc-900 dark:text-white px-12 py-8 rounded-[2.5rem] font-black uppercase tracking-widest text-[11px] flex items-center justify-center gap-5 hover:border-brand-orange dark:hover:border-brand-orange transition-all group active:scale-95">
+                         <PlayCircle size={24} className="group-hover:scale-110 transition-transform" /> Boas-Vindas
                       </button>
+                   </div>
+                </div>
+                
+                {/* Signature Block */}
+                <div className="flex items-center gap-8 pt-10">
+                   <div className="h-px bg-zinc-200 dark:bg-white/10 flex-grow"></div>
+                   <div className="text-right">
+                      <p className="font-black uppercase tracking-widest text-zinc-900 dark:text-white text-base leading-none mb-2">{data.pastorName}</p>
+                      <p className="text-[10px] font-bold text-brand-orange uppercase tracking-[0.4em]">{data.pastorRole}</p>
                    </div>
                 </div>
              </div>

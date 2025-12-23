@@ -2,141 +2,86 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { DiscipleshipTrack } from '../types';
-import { ChevronLeft, ArrowRight, CheckCircle, List, Award, BookOpen, Clock, PlayCircle, Lock, GraduationCap, ArrowUpRight, ImageOff, Printer, Share2, X, Download } from 'lucide-react';
+import { ChevronLeft, ArrowRight, CheckCircle, List, Award, GraduationCap, ArrowUpRight, X, Printer, Share2, Download, Lock, PlayCircle } from 'lucide-react';
 
 const CertificateModal = ({ track, onClose }: { track: DiscipleshipTrack, onClose: () => void }) => {
     const [name, setName] = useState('');
     const [isGenerated, setIsGenerated] = useState(false);
 
-    const handleGenerate = () => {
-        if (!name.trim()) {
-            alert("Por favor, digite seu nome completo para o certificado.");
-            return;
-        }
-        setIsGenerated(true);
-    };
-
     const handlePrint = () => {
         const printContent = document.getElementById('printable-certificate');
         if (printContent) {
-            const originalContents = document.body.innerHTML;
-            document.body.innerHTML = printContent.outerHTML;
-            window.print();
-            document.body.innerHTML = originalContents;
-            window.location.reload(); // Reload to restore React state/events
-        }
-    };
-
-    const handleShare = async () => {
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: `Certificado - ${track.title}`,
-                    text: `Acabei de concluir o curso ${track.title} na Academia Atitude!`,
-                    url: window.location.href,
-                });
-            } catch (err) {
-                console.log('Error sharing', err);
-            }
-        } else {
-            alert("Compartilhamento não suportado neste navegador. Tire um print da tela!");
+            const win = window.open('', '_blank');
+            win?.document.write(`<html><head><title>Certificado - IBA DC</title><link href="https://cdn.tailwindcss.com" rel="stylesheet"><style>@media print { body { -webkit-print-color-adjust: exact; } }</style></head><body>${printContent.innerHTML}</body></html>`);
+            setTimeout(() => { win?.print(); win?.close(); }, 500);
         }
     };
 
     return (
-        <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 animate-fade-in overflow-y-auto">
-            <div className="relative w-full max-w-5xl bg-zinc-50 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
-                <button onClick={onClose} className="absolute top-4 right-4 bg-zinc-200 hover:bg-red-100 text-zinc-500 hover:text-red-500 p-2 rounded-full transition-colors z-50"><X size={24}/></button>
-                
+        <div className="fixed inset-0 z-[110] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4 animate-fade-in">
+            <div className="bg-white rounded-3xl w-full max-w-4xl overflow-hidden relative shadow-2xl animate-slide-up">
+                <button onClick={onClose} className="absolute top-6 right-6 p-3 bg-zinc-100 rounded-full z-20 hover:bg-red-500 hover:text-white transition-all"><X size={20}/></button>
                 {!isGenerated ? (
-                    <div className="flex flex-col items-center justify-center p-12 text-center h-full min-h-[400px]">
-                        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                            <Award size={48} className="text-green-600"/>
+                    <div className="p-16 text-center space-y-10">
+                        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto shadow-inner"><Award size={48} className="text-green-600"/></div>
+                        <div>
+                           <h2 className="text-5xl font-black text-zinc-900 tracking-tighter mb-4">MUITO BEM!</h2>
+                           <p className="text-zinc-500 text-lg">Você concluiu o curso com sucesso. Digite seu nome completo para emitir seu certificado de honra.</p>
                         </div>
-                        <h2 className="text-3xl font-black text-zinc-900 mb-4">Parabéns pela Conclusão!</h2>
-                        <p className="text-zinc-500 mb-8 max-w-md">Você finalizou a trilha <strong>{track.title}</strong>. Para gerar seu certificado oficial, digite seu nome abaixo como deseja que apareça.</p>
-                        
-                        <div className="w-full max-w-md space-y-4">
-                            <input 
-                                autoFocus
-                                className="w-full p-4 text-center text-xl font-bold border-2 border-zinc-300 rounded-xl focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 outline-none uppercase placeholder:normal-case"
-                                placeholder="Seu Nome Completo"
-                                value={name}
-                                onChange={e => setName(e.target.value)}
-                            />
-                            <button 
-                                onClick={handleGenerate}
-                                className="w-full bg-brand-orange text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-orange-600 transition-all shadow-lg flex items-center justify-center gap-2"
-                            >
-                                <Award size={20}/> Gerar Certificado
-                            </button>
-                        </div>
+                        <input 
+                           className="w-full p-6 text-center text-3xl font-black border-4 border-zinc-100 rounded-3xl outline-none focus:border-brand-orange focus:ring-8 focus:ring-brand-orange/5 transition-all" 
+                           placeholder="Seu Nome Completo" 
+                           value={name} 
+                           onChange={e => setName(e.target.value)} 
+                           autoFocus
+                        />
+                        <button 
+                           onClick={() => name.length > 3 && setIsGenerated(true)} 
+                           className="w-full bg-zinc-900 text-white py-6 rounded-3xl font-black uppercase tracking-widest shadow-2xl hover:bg-brand-orange transition-all transform hover:-translate-y-1 active:scale-95 disabled:opacity-50"
+                           disabled={name.length < 4}
+                        >
+                           Gerar Meu Certificado Oficial
+                        </button>
                     </div>
                 ) : (
-                    <div className="flex flex-col h-full">
-                        {/* Certificate Area - Printable */}
-                        <div id="printable-certificate" className="bg-white p-8 md:p-12 relative flex-grow min-h-[600px] flex flex-col justify-center text-center border-[20px] border-double border-[#C5A059]/20 shadow-inner">
-                            {/* Background Watermark/Texture */}
-                            <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/black-scales.png')] pointer-events-none"></div>
-                            
-                            {/* Decorative Corners */}
-                            <div className="absolute top-6 left-6 w-16 h-16 border-t-4 border-l-4 border-[#C5A059]"></div>
-                            <div className="absolute top-6 right-6 w-16 h-16 border-t-4 border-r-4 border-[#C5A059]"></div>
-                            <div className="absolute bottom-6 left-6 w-16 h-16 border-b-4 border-l-4 border-[#C5A059]"></div>
-                            <div className="absolute bottom-6 right-6 w-16 h-16 border-b-4 border-r-4 border-[#C5A059]"></div>
-
-                            <div className="relative z-10 space-y-6">
-                                {/* Header */}
-                                <div>
-                                    <div className="flex justify-center items-center gap-3 mb-4 text-brand-orange">
-                                        <GraduationCap size={40} />
-                                        <span className="font-black text-xl tracking-widest uppercase">Academia Atitude</span>
-                                    </div>
-                                    <h1 className="text-5xl md:text-7xl font-serif text-zinc-800 tracking-tight text-[#C5A059]">Certificado</h1>
-                                    <p className="text-sm font-bold uppercase tracking-[0.4em] text-zinc-400 mt-2">de Conclusão de Curso</p>
-                                </div>
-
-                                {/* Content */}
-                                <div className="py-8">
-                                    <p className="text-zinc-500 text-lg italic mb-2">Certificamos que</p>
-                                    <h2 className="text-3xl md:text-5xl font-handwriting text-zinc-900 border-b-2 border-zinc-200 pb-2 inline-block px-12 min-w-[300px] capitalize">
-                                        {name.toLowerCase()}
-                                    </h2>
-                                    <p className="text-zinc-500 text-lg mt-6 max-w-2xl mx-auto leading-relaxed">
-                                        Concluiu com êxito o curso <strong className="text-brand-orange font-bold uppercase">{track.title}</strong> ministrado pela Igreja Batista Atitude em Duque de Caxias, demonstrando dedicação e compromisso com o aprendizado da Palavra.
-                                    </p>
-                                </div>
-
-                                {/* Footer / Signatures */}
-                                <div className="flex flex-col md:flex-row justify-center items-end gap-16 mt-12">
-                                    <div className="text-center">
-                                        <div className="w-48 border-b border-zinc-400 mb-2"></div>
-                                        <p className="font-bold text-zinc-800 text-sm uppercase">Pr. Joubert Curti</p>
-                                        <p className="text-zinc-500 text-[10px] uppercase tracking-wider">Pastor Presidente</p>
-                                    </div>
-                                    
-                                    {/* Gold Seal */}
-                                    <div className="w-24 h-24 bg-gradient-to-br from-[#F4E285] to-[#C5A059] rounded-full flex items-center justify-center shadow-lg text-white font-serif font-bold text-xs text-center border-4 border-white transform rotate-12">
-                                        SELO<br/>OFICIAL<br/>IBA-DC
-                                    </div>
-
-                                    <div className="text-center">
-                                        <p className="font-bold text-zinc-800 text-lg">{new Date().toLocaleDateString()}</p>
-                                        <div className="w-48 border-t border-zinc-400 mt-2"></div>
-                                        <p className="text-zinc-500 text-[10px] uppercase tracking-wider pt-1">Data de Emissão</p>
-                                    </div>
-                                </div>
-                            </div>
+                    <div className="p-10 flex flex-col items-center animate-fade-in">
+                        <div id="printable-certificate" className="w-full bg-white p-16 text-center border-[15px] border-double border-zinc-200 relative overflow-hidden">
+                           <div className="absolute top-0 right-0 w-32 h-32 bg-brand-orange/5 rounded-bl-full"></div>
+                           <div className="absolute bottom-0 left-0 w-32 h-32 bg-brand-orange/5 rounded-tr-full"></div>
+                           
+                           <div className="space-y-8">
+                              <div className="flex justify-center mb-10">
+                                 <GraduationCap size={64} className="text-brand-orange"/>
+                              </div>
+                              <h1 className="text-6xl font-serif text-zinc-800 tracking-tight">Certificado de Conclusão</h1>
+                              <p className="text-zinc-400 font-black uppercase tracking-[0.4em] text-xs">A Igreja Batista Atitude em Duque de Caxias confere a:</p>
+                              <h2 className="text-5xl font-black text-zinc-950 uppercase border-b-4 border-brand-orange inline-block px-10 pb-4">{name}</h2>
+                              <p className="text-zinc-600 leading-relaxed max-w-2xl mx-auto text-xl italic">"Pela conclusão com êxito do curso acadêmico de <strong>{track.title}</strong>, demonstrando compromisso inabalável com o Reino e a busca contínua pelo conhecimento das Sagradas Escrituras."</p>
+                              
+                              <div className="pt-16 flex justify-between items-end max-w-2xl mx-auto text-left">
+                                 <div className="text-center w-64">
+                                    <div className="border-b border-zinc-300 mb-4 pb-4 font-black uppercase text-[10px]">Pr. Joubert Curti</div>
+                                    <p className="text-[9px] text-zinc-400 uppercase tracking-widest font-bold text-center">Pastor Presidente IBA-DC</p>
+                                 </div>
+                                 <div className="w-24 h-24 bg-zinc-50 border-4 border-zinc-200 rounded-full flex flex-col items-center justify-center text-zinc-300 font-black">
+                                    <span className="text-[8px] leading-none">SELO DE</span>
+                                    <span className="text-[10px] text-zinc-800 text-center">AUTENTICIDADE</span>
+                                 </div>
+                                 <div className="text-center w-64">
+                                    <div className="border-b border-zinc-300 mb-4 pb-4 font-bold text-lg text-center">{new Date().toLocaleDateString()}</div>
+                                    <p className="text-[9px] text-zinc-400 uppercase tracking-widest font-bold text-center">Data de Emissão</p>
+                                 </div>
+                              </div>
+                           </div>
                         </div>
-
-                        {/* Actions Bar */}
-                        <div className="bg-zinc-100 p-6 flex justify-center gap-4 border-t border-zinc-200 print:hidden">
-                            <button onClick={handlePrint} className="flex items-center gap-2 bg-zinc-900 text-white px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-zinc-800 transition-colors shadow-lg">
-                                <Printer size={18}/> Imprimir
-                            </button>
-                            <button onClick={handleShare} className="flex items-center gap-2 bg-white border border-zinc-300 text-zinc-700 px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-zinc-50 transition-colors shadow-sm">
-                                <Share2 size={18}/> Compartilhar
-                            </button>
+                        
+                        <div className="flex gap-4 mt-12 w-full max-w-md">
+                           <button onClick={handlePrint} className="flex-1 bg-zinc-900 text-white py-5 rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-3 hover:bg-brand-orange transition-all shadow-xl">
+                              <Printer size={20}/> Imprimir
+                           </button>
+                           <button onClick={onClose} className="flex-1 bg-zinc-100 py-5 rounded-2xl font-black uppercase text-xs text-zinc-500 hover:bg-zinc-200 transition-all">
+                              Sair
+                           </button>
                         </div>
                     </div>
                 )}
@@ -148,115 +93,69 @@ const CertificateModal = ({ track, onClose }: { track: DiscipleshipTrack, onClos
 export const DiscipleshipView = ({ tracks }: { tracks: DiscipleshipTrack[] }) => {
     const [activeTrack, setActiveTrack] = useState<DiscipleshipTrack | null>(null);
     const [currentStep, setCurrentStep] = useState(0);
-    const [filter, setFilter] = useState('Todos');
     const [showCert, setShowCert] = useState(false);
 
-    // Categorias Únicas
-    const categories = ['Todos', ...Array.from(new Set(tracks.map(t => t.category || 'Geral')))];
-    const filteredTracks = filter === 'Todos' ? tracks : tracks.filter(t => t.category === filter);
-
     return (
-     <div className="min-h-screen bg-zinc-50 dark:bg-black pb-20 animate-fade-in">
+     <div className="min-h-screen bg-zinc-50 dark:bg-black transition-colors duration-700 pb-20 animate-fade-in overflow-x-hidden">
        {showCert && activeTrack && <CertificateModal track={activeTrack} onClose={() => { setShowCert(false); setActiveTrack(null); }} />}
        
        {!activeTrack ? (
          <>
-           {/* LMS Header */}
-           <div className="relative bg-zinc-900 text-white overflow-hidden pt-32 pb-24">
-              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
-              <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-orange/20 rounded-full blur-[150px]"></div>
-              
-              <div className="max-w-7xl mx-auto px-6 relative z-10">
-                 <div className="flex flex-col md:flex-row items-end justify-between gap-8">
-                    <div>
-                        <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6">
-                            <GraduationCap size={14} className="text-brand-orange"/> Academia Atitude
-                        </div>
-                        <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-4">
-                            Sua Jornada de <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-red-500">Crescimento.</span>
-                        </h1>
-                        <p className="text-zinc-400 text-lg max-w-xl">
-                            Cursos gratuitos, teologia prática e trilhas de liderança. Prepare-se para viver o seu propósito.
-                        </p>
-                    </div>
-                    <div className="flex gap-4">
-                        <div className="text-right">
-                            <p className="text-3xl font-black">{tracks.length}</p>
-                            <p className="text-xs text-zinc-500 uppercase font-bold">Cursos Disponíveis</p>
-                        </div>
-                        <div className="w-px h-12 bg-white/10"></div>
-                        <div className="text-right">
-                            <p className="text-3xl font-black">100%</p>
-                            <p className="text-xs text-zinc-500 uppercase font-bold">Online & Gratuito</p>
-                        </div>
-                    </div>
-                 </div>
+           {/* Surprising Modern Hero */}
+           <div className="bg-zinc-950 text-white pt-48 pb-32 px-8 relative overflow-hidden rounded-b-[4rem]">
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10"></div>
+              <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-brand-orange/10 rounded-full blur-[160px] animate-pulse"></div>
+              <div className="max-w-7xl mx-auto relative z-10 text-center">
+                  <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-10 border border-white/5 animate-slide-up shadow-2xl">
+                      <GraduationCap size={16} className="text-brand-orange"/> Academia Atitude • Plataforma EAD
+                  </div>
+                  <h1 className="text-7xl md:text-9xl font-black tracking-tighter mb-8 leading-[0.85] animate-slide-up uppercase">
+                      CONHECER PARA <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange via-orange-400 to-red-600">TRANSFORMAR.</span>
+                  </h1>
+                  <p className="text-zinc-400 text-lg md:text-2xl font-medium max-w-3xl mx-auto leading-relaxed animate-fade-in delay-500">
+                     O conhecimento da Palavra é a base para uma vida extraordinária. Escolha um curso e inicie sua jornada agora mesmo.
+                  </p>
               </div>
            </div>
 
-           {/* Filter Bar */}
-           <div className="border-b border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-950 sticky top-20 z-30">
-               <div className="max-w-7xl mx-auto px-6 overflow-x-auto">
-                   <div className="flex gap-8">
-                       {categories.map(cat => (
-                           <button 
-                                key={cat}
-                                onClick={() => setFilter(cat)}
-                                className={`py-6 text-sm font-bold uppercase tracking-wider border-b-2 transition-all whitespace-nowrap ${filter === cat ? 'border-brand-orange text-brand-orange' : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-white'}`}
-                           >
-                               {cat}
-                           </button>
-                       ))}
-                   </div>
-               </div>
-           </div>
+           {/* Animated Course Grid */}
+           <div className="max-w-7xl mx-auto px-8 py-24">
+              <div className="flex items-center justify-between mb-16">
+                 <h2 className="text-3xl font-black uppercase tracking-tighter flex items-center gap-4">
+                    <div className="w-1.5 h-10 bg-brand-orange rounded-full"></div>
+                    Catálogo de Cursos
+                 </h2>
+                 <div className="text-[10px] font-black uppercase tracking-widest text-zinc-400 border border-zinc-200 dark:border-white/10 px-4 py-2 rounded-lg">
+                    {tracks.length} Trilhas Disponíveis
+                 </div>
+              </div>
 
-           {/* Course Grid */}
-           <div className="max-w-7xl mx-auto px-6 py-12">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                  {filteredTracks.map(track => (
-                    <div key={track.id} onClick={() => { setActiveTrack(track); setCurrentStep(0); }} className="group bg-white dark:bg-zinc-900 rounded-[2rem] overflow-hidden border border-zinc-200 dark:border-white/5 shadow-lg hover:shadow-2xl hover:shadow-brand-orange/10 transition-all hover:-translate-y-2 cursor-pointer flex flex-col h-full relative">
-                        {/* Thumbnail */}
-                        <div className="aspect-[4/3] relative overflow-hidden bg-zinc-200 dark:bg-zinc-800">
-                           <img 
-                              src={track.image} 
-                              alt={track.title} 
-                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                              onError={(e) => {
-                                // Fallback image if the original fails
-                                e.currentTarget.onerror = null;
-                                e.currentTarget.src = "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=2070"; 
-                              }}
-                           />
-                           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
-                           
-                           {/* Play Button Overlay */}
-                           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                               <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-full flex items-center justify-center">
-                                   <PlayCircle size={32} className="text-white fill-white"/>
-                               </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                  {tracks.map((track, idx) => (
+                    <div 
+                      key={track.id} 
+                      onClick={() => { setActiveTrack(track); setCurrentStep(0); }} 
+                      className={`group bg-white dark:bg-zinc-900 rounded-[2.5rem] overflow-hidden border border-zinc-200 dark:border-white/5 shadow-xl hover:shadow-brand-orange/20 transition-all duration-700 cursor-pointer hover:-translate-y-3 animate-fade-in`}
+                      style={{ transitionDelay: `${idx * 100}ms` }}
+                    >
+                        <div className="aspect-[16/10] relative overflow-hidden">
+                           <img src={track.image} className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-110" alt={track.title} />
+                           <div className="absolute inset-0 bg-black/40 group-hover:bg-black/10 transition-colors duration-500"></div>
+                           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 scale-50 group-hover:scale-100">
+                              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-brand-orange shadow-2xl">
+                                 <PlayCircle size={32} fill="currentColor"/>
+                              </div>
                            </div>
-
-                           <div className="absolute top-4 left-4">
-                               <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur border border-white/20 text-white text-[10px] font-bold uppercase rounded-full shadow-lg">
-                                 {track.category || 'Geral'}
-                               </span>
+                           <div className="absolute top-6 left-6">
+                              <span className="bg-brand-orange text-white text-[9px] font-black uppercase px-3 py-1.5 rounded-xl tracking-widest shadow-lg">{track.category || 'Membresia'}</span>
                            </div>
                         </div>
-
-                        {/* Content */}
-                        <div className="p-6 flex flex-col flex-grow">
-                           <h3 className="text-xl font-black text-zinc-900 dark:text-white leading-tight mb-3 line-clamp-2 group-hover:text-brand-orange transition-colors">{track.title}</h3>
-                           <p className="text-zinc-500 dark:text-zinc-400 text-xs line-clamp-3 mb-6 flex-grow">{track.description}</p>
-                           
-                           {/* Meta & Action */}
-                           <div className="pt-4 border-t border-zinc-100 dark:border-white/5 flex items-center justify-between">
-                              <div className="flex items-center gap-2 text-xs font-bold text-zinc-400 uppercase">
-                                 <List size={14}/> {track.steps?.length || 0} Aulas
-                              </div>
-                              <span className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-white/5 flex items-center justify-center text-zinc-400 group-hover:bg-brand-orange group-hover:text-white transition-all">
-                                 <ArrowUpRight size={16}/>
-                              </span>
+                        <div className="p-8">
+                           <h3 className="text-2xl font-black text-zinc-900 dark:text-white leading-tight mb-4 group-hover:text-brand-orange transition-colors uppercase tracking-tight">{track.title}</h3>
+                           <p className="text-zinc-500 dark:text-zinc-400 text-sm line-clamp-2 mb-8 leading-relaxed font-medium">Siga a trilha de aprendizado completa sobre {track.title} e receba seu certificado oficial ao final.</p>
+                           <div className="flex items-center gap-4 text-[9px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pt-6 border-t border-zinc-100 dark:border-white/5">
+                              <List size={14} className="text-brand-orange"/> {track.steps?.length || 0} Módulos de Estudo
+                              <div className="ml-auto w-10 h-10 rounded-2xl bg-zinc-50 dark:bg-white/5 flex items-center justify-center text-zinc-400 group-hover:bg-brand-orange group-hover:text-white transition-all"><ArrowUpRight size={18}/></div>
                            </div>
                         </div>
                     </div>
@@ -265,103 +164,91 @@ export const DiscipleshipView = ({ tracks }: { tracks: DiscipleshipTrack[] }) =>
            </div>
          </>
        ) : (
-         /* PLAYER MODE */
-         <div className="h-screen flex flex-col lg:flex-row overflow-hidden bg-white dark:bg-zinc-950 fixed inset-0 z-[60]">
+         /* Immersive Mobile-First Course Player */
+         <div className="h-screen flex flex-col lg:flex-row overflow-hidden fixed inset-0 z-[120] bg-white dark:bg-zinc-950 animate-fade-in">
             
-            {/* Sidebar (Navigation) */}
-            <div className="w-full lg:w-96 bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-white/5 flex flex-col h-full shrink-0">
-               <div className="p-6 border-b border-zinc-200 dark:border-white/5 bg-white dark:bg-black/20">
-                  <button onClick={() => setActiveTrack(null)} className="flex items-center text-zinc-500 hover:text-brand-orange text-xs font-bold uppercase tracking-widest mb-6 transition-colors group">
-                     <ChevronLeft size={16} className="mr-1 group-hover:-translate-x-1 transition-transform"/> Voltar para Academia
+            {/* Sidebar Navigation - Optimized for Thumb Access */}
+            <div className="w-full lg:w-96 bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-white/5 flex flex-col shrink-0 order-2 lg:order-1">
+               <div className="p-8 border-b border-zinc-200 dark:border-white/5">
+                  <button onClick={() => setActiveTrack(null)} className="text-zinc-500 hover:text-brand-orange text-[10px] font-black uppercase tracking-widest mb-8 flex items-center gap-2 transition-colors group">
+                     <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform"/> Voltar ao Catálogo
                   </button>
-                  <span className="text-[10px] font-black uppercase text-brand-orange mb-2 block tracking-widest">Curso em Andamento</span>
-                  <h2 className="text-xl font-black text-zinc-900 dark:text-white leading-tight mb-4">{activeTrack.title}</h2>
+                  <h2 className="text-2xl font-black text-zinc-900 dark:text-white leading-tight uppercase tracking-tighter">{activeTrack.title}</h2>
                   
-                  {/* Progress Bar */}
-                  <div className="flex items-center justify-between text-xs font-bold text-zinc-500 mb-2">
-                     <span>Progresso</span>
-                     <span>{Math.round(((currentStep) / (activeTrack.steps?.length || 1)) * 100)}%</span>
-                  </div>
-                  <div className="w-full bg-zinc-200 dark:bg-white/10 h-2 rounded-full overflow-hidden">
-                     <div className="bg-gradient-to-r from-brand-orange to-red-500 h-full transition-all duration-500" style={{width: `${((currentStep) / (activeTrack.steps?.length || 1)) * 100}%`}}></div>
+                  {/* Progress Visualization */}
+                  <div className="mt-8">
+                     <div className="flex justify-between text-[9px] font-black uppercase text-zinc-400 tracking-widest mb-3">
+                        <span>Seu Progresso</span>
+                        <span>{Math.round(((currentStep + 1) / (activeTrack.steps?.length || 1)) * 100)}%</span>
+                     </div>
+                     <div className="w-full bg-zinc-200 dark:bg-white/10 h-2.5 rounded-full overflow-hidden shadow-inner">
+                        <div className="bg-brand-orange h-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(255,85,0,0.4)]" style={{width: `${((currentStep + 1) / (activeTrack.steps?.length || 1)) * 100}%`}}></div>
+                     </div>
                   </div>
                </div>
-               
-               <div className="flex-grow overflow-y-auto custom-scrollbar p-2">
-                  <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-widest px-4 py-4">Conteúdo do Curso</h4>
-                  <div className="space-y-1">
+
+               <div className="flex-grow overflow-y-auto p-4 space-y-3 custom-scrollbar">
                     {activeTrack.steps?.map((step, idx) => (
                         <button 
-                            key={idx}
-                            onClick={() => setCurrentStep(idx)}
-                            className={`w-full text-left p-4 rounded-xl flex items-center gap-4 transition-all border ${
-                            idx === currentStep 
-                            ? 'bg-white dark:bg-white/5 border-brand-orange/30 shadow-lg' 
-                            : 'hover:bg-zinc-100 dark:hover:bg-white/5 border-transparent opacity-70 hover:opacity-100'
-                            }`}
+                          key={idx} 
+                          onClick={() => setCurrentStep(idx)} 
+                          className={`w-full text-left p-6 rounded-3xl flex items-center gap-5 transition-all duration-300 ${idx === currentStep ? 'bg-white dark:bg-zinc-800 shadow-2xl border border-brand-orange/20 scale-102 z-10' : 'opacity-60 hover:opacity-100 hover:bg-zinc-100 dark:hover:bg-white/5 text-zinc-900 dark:text-zinc-300'}`}
                         >
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-colors ${
-                            idx === currentStep ? 'bg-brand-orange text-white' : idx < currentStep ? 'bg-green-500 text-white' : 'bg-zinc-200 dark:bg-white/10 text-zinc-500'
-                            }`}>
-                            {idx < currentStep ? <CheckCircle size={14}/> : idx + 1}
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xs font-black shadow-lg transition-all duration-500 ${idx === currentStep ? 'bg-brand-orange text-white scale-110' : idx < currentStep ? 'bg-green-500 text-white' : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500'}`}>
+                               {idx < currentStep ? <CheckCircle size={20}/> : idx + 1}
                             </div>
                             <div className="flex-grow">
-                                <h4 className={`text-sm font-bold leading-tight ${idx === currentStep ? 'text-zinc-900 dark:text-white' : 'text-zinc-600 dark:text-zinc-400'}`}>{step.title}</h4>
-                                <span className="text-[10px] text-zinc-400 font-medium">Leitura • 5 min</span>
+                               <span className={`text-sm font-black uppercase tracking-tight block ${idx === currentStep ? 'text-zinc-900 dark:text-white' : 'text-zinc-500'}`}>{step.title}</span>
+                               <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1 block">{idx < currentStep ? 'Concluído' : idx === currentStep ? 'Em Aula' : 'Bloqueado'}</span>
                             </div>
-                            {idx > currentStep && idx !== 0 && <Lock size={14} className="text-zinc-300"/>}
                         </button>
                     ))}
-                  </div>
                </div>
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-grow overflow-y-auto custom-scrollbar relative bg-white dark:bg-black">
-               {activeTrack.steps && activeTrack.steps[currentStep] ? (
-                  <div className="max-w-4xl mx-auto p-8 lg:p-16">
-                     <div className="mb-12">
-                        <span className="text-brand-orange font-bold uppercase tracking-widest text-xs mb-4 block">Aula {currentStep + 1}/{activeTrack.steps.length}</span>
-                        <h1 className="text-4xl lg:text-5xl font-black text-zinc-900 dark:text-white leading-tight">{activeTrack.steps[currentStep].title}</h1>
-                     </div>
+            <div className="flex-grow overflow-y-auto bg-white dark:bg-black p-8 lg:p-24 relative order-1 lg:order-2 custom-scrollbar">
+               <div className="max-w-4xl mx-auto space-y-12">
+                  <div className="space-y-4">
+                     <span className="text-brand-orange font-black text-[10px] uppercase tracking-[0.3em]">Módulo {currentStep + 1} de {activeTrack.steps.length}</span>
+                     <h1 className="text-5xl lg:text-7xl font-black text-zinc-900 dark:text-white leading-[0.9] tracking-tighter uppercase">{activeTrack.steps[currentStep].title}</h1>
+                  </div>
+                  
+                  <div className="prose prose-zinc dark:prose-invert prose-xl max-w-none text-zinc-700 dark:text-zinc-300 leading-relaxed font-serif pt-8 border-t border-zinc-100 dark:border-white/5">
+                     <ReactMarkdown>{activeTrack.steps[currentStep].content}</ReactMarkdown>
+                  </div>
+
+                  {/* Navigation Buttons */}
+                  <div className="pt-24 flex flex-col sm:flex-row justify-between items-center gap-6 sticky bottom-0 bg-white/90 dark:bg-black/90 backdrop-blur-xl py-10 border-t border-zinc-100 dark:border-white/5">
+                     <button 
+                       disabled={currentStep === 0} 
+                       onClick={() => setCurrentStep(p => p - 1)} 
+                       className="flex items-center gap-3 font-black uppercase text-[10px] tracking-widest text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all disabled:opacity-0 active:scale-95"
+                     >
+                        <ChevronLeft size={20}/> Anterior
+                     </button>
                      
-                     <div className="prose dark:prose-invert prose-lg max-w-none text-zinc-700 dark:text-zinc-300 leading-relaxed font-serif">
-                        <ReactMarkdown>{activeTrack.steps[currentStep].content}</ReactMarkdown>
-                     </div>
-
-                     {/* Navigation Footer */}
-                     <div className="mt-20 pt-10 border-t border-zinc-100 dark:border-white/10 flex justify-between items-center sticky bottom-0 bg-white/90 dark:bg-black/90 backdrop-blur p-6 -mx-6 rounded-t-3xl border-t-2">
+                     {currentStep < (activeTrack.steps.length - 1) ? (
                         <button 
-                           disabled={currentStep === 0}
-                           onClick={() => setCurrentStep(p => p - 1)}
-                           className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 disabled:opacity-30 transition-all"
+                          onClick={() => {
+                            setCurrentStep(p => p + 1);
+                            const mainEl = document.querySelector('.order-1');
+                            if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'smooth' });
+                          }} 
+                          className="bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 px-12 py-6 rounded-[2rem] font-black uppercase tracking-widest text-[11px] flex items-center gap-4 hover:bg-brand-orange dark:hover:bg-brand-orange dark:hover:text-white transition-all shadow-[0_20px_50px_rgba(0,0,0,0.15)] transform hover:-translate-y-1 active:scale-95"
                         >
-                           <ChevronLeft size={18}/> Aula Anterior
+                           Próximo Módulo <ArrowRight size={20}/>
                         </button>
-
-                        {currentStep < (activeTrack.steps.length - 1) ? (
-                           <button 
-                              onClick={() => { setCurrentStep(p => p + 1); window.scrollTo({top:0, behavior:'smooth'}); }}
-                              className="bg-zinc-900 dark:bg-white text-white dark:text-black px-8 py-4 rounded-xl font-black uppercase tracking-wider hover:bg-brand-orange hover:text-white dark:hover:bg-brand-orange dark:hover:text-white transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center gap-3"
-                           >
-                              Próxima Aula <ArrowRight size={18}/>
-                           </button>
-                        ) : (
-                           <button 
-                              onClick={() => setShowCert(true)}
-                              className="bg-green-600 text-white px-8 py-4 rounded-xl font-black uppercase tracking-wider hover:bg-green-700 transition-all shadow-xl hover:shadow-green-500/30 flex items-center gap-3"
-                           >
-                              Concluir & Certificado <Award size={18}/>
-                           </button>
-                        )}
-                     </div>
+                     ) : (
+                        <button 
+                          onClick={() => setShowCert(true)} 
+                          className="bg-green-600 text-white px-12 py-6 rounded-[2rem] font-black uppercase tracking-widest text-[11px] flex items-center gap-4 hover:bg-green-700 transition-all shadow-[0_20px_50px_rgba(16,185,129,0.3)] transform hover:-translate-y-1 animate-pulse"
+                        >
+                           Finalizar Curso & Emitir Certificado <Award size={22} className="animate-bounce"/>
+                        </button>
+                     )}
                   </div>
-               ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-zinc-400">
-                     <BookOpen size={64} className="mb-4 opacity-20"/>
-                     <p>Selecione uma aula para começar.</p>
-                  </div>
-               )}
+               </div>
             </div>
          </div>
        )}
