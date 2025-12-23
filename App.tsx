@@ -5,7 +5,7 @@ import { subscribeToData, saveData } from './services/firebase';
 import { Layout } from './components/Layout';
 import { 
   ArrowUp, PlayCircle, Calendar, FileText, GraduationCap, ArrowUpRight, 
-  User, Heart, Send, CheckCircle, ChevronLeft
+  User, Heart, Send, CheckCircle, ChevronLeft, ChevronRight, ArrowRight, Star, Clock, Ticket
 } from 'lucide-react';
 
 // Views
@@ -31,6 +31,7 @@ import {
   InstagramSection, CellVisionSection, UrgentNoticePopup, PrayerSection
 } from './components/sections/HomeComponents';
 import { StepModal, DonationModal } from './components/modals/GeneralModals';
+import { getThumbnailUrl } from './utils';
 
 const INITIAL_HOME_CONFIG: HomeConfig = {
   heroTitle: "VIVENDO O EXTRAORDINÁRIO",
@@ -112,28 +113,84 @@ const App = () => {
     'values': <ValuesSection />,
     'growthpath': <GrowthPath onNavigate={setActiveTab} onOpenVisitor={() => setActiveStepModal('VISITOR')} onOpenDecision={() => setActiveStepModal('DECISION')} />,
     'highlights': (
-      <div className="max-w-7xl mx-auto px-4 my-24 animate-fade-in">
-        <div className="flex justify-between items-end mb-12">
-            <h2 className="text-4xl font-black text-zinc-900 dark:text-white tracking-tighter">DESTAQUES<span className="text-brand-orange">.</span></h2>
-            <button onClick={() => setActiveTab(NavigationTab.NEWS)} className="text-zinc-500 hover:text-brand-orange text-xs font-black uppercase tracking-widest transition-colors">Ver Tudo</button>
+      <div className="max-w-7xl mx-auto px-6 my-32 animate-fade-in">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-8">
+            <div className="max-w-xl">
+                <span className="text-brand-orange font-black uppercase text-[10px] tracking-[0.4em] mb-4 block">Não perca nada</span>
+                <h2 className="text-5xl md:text-6xl font-black text-zinc-900 tracking-tighter leading-none">VIVA O <br/><span className="text-zinc-300">EXTRAORDINÁRIO.</span></h2>
+            </div>
+            <button onClick={() => setActiveTab(NavigationTab.NEWS)} className="flex items-center gap-3 px-8 py-4 bg-zinc-50 hover:bg-zinc-100 rounded-2xl text-zinc-500 hover:text-zinc-900 font-black uppercase text-[10px] tracking-widest transition-all group">
+                Explorar Tudo <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform"/>
+            </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 h-auto md:h-[500px]">
-            <div onClick={() => setActiveTab(NavigationTab.SERMONS)} className="md:col-span-2 relative group rounded-[2.5rem] overflow-hidden cursor-pointer shadow-xl">
-              <img src={sermons[0] ? `https://img.youtube.com/vi/${sermons[0].youtubeUrl.split('v=')[1]?.split('&')[0]}/maxresdefault.jpg` : ""} className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+
+        <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-6 h-auto md:h-[650px]">
+            {/* 1. MENSAGEM PRINCIPAL (Netflix Bento Card) */}
+            <div onClick={() => setActiveTab(NavigationTab.SERMONS)} className="md:col-span-2 md:row-span-2 relative group rounded-[3rem] overflow-hidden cursor-pointer shadow-2xl border border-zinc-100">
+              <img src={getThumbnailUrl(sermons[0]?.youtubeUrl || "")} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3000ms] group-hover:scale-110" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-              <div className="absolute bottom-0 left-0 p-8">
-                  <h3 className="text-2xl font-black text-white uppercase mb-2">{sermons[0]?.title}</h3>
-                  <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-4 py-2 rounded-full flex items-center gap-2 w-fit">Assistir Agora <PlayCircle size={14}/></span>
+              
+              <div className="absolute top-8 left-8">
+                 <div className="bg-red-600 text-white text-[9px] font-black uppercase px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg animate-pulse">
+                    <div className="w-1.5 h-1.5 bg-white rounded-full"></div> Última Mensagem
+                 </div>
+              </div>
+
+              <div className="absolute bottom-0 left-0 p-10 w-full">
+                  <span className="text-zinc-400 text-[10px] font-black uppercase tracking-widest mb-2 block">{sermons[0]?.date || 'Domingo Passado'}</span>
+                  <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight leading-none mb-6 drop-shadow-xl">{sermons[0]?.title || "Culto de Celebração"}</h3>
+                  <div className="flex items-center gap-4">
+                     <span className="flex items-center gap-3 text-white font-black uppercase text-[10px] tracking-widest bg-white/20 backdrop-blur-md px-8 py-4 rounded-2xl hover:bg-brand-orange hover:text-white transition-all shadow-xl">
+                        <PlayCircle size={18} /> Assistir Agora
+                     </span>
+                  </div>
               </div>
             </div>
-            <div onClick={() => setActiveTab(NavigationTab.DISCIPLESHIP)} className="md:col-span-2 bg-zinc-900 rounded-[2.5rem] p-8 flex flex-col justify-between group cursor-pointer relative overflow-hidden border border-white/5 shadow-xl">
-              <div className="absolute right-0 top-0 w-32 h-32 bg-brand-orange/20 blur-[60px] rounded-full"></div>
-              <GraduationCap size={40} className="text-brand-orange" />
-              <div>
-                 <h3 className="text-2xl font-black text-white uppercase mb-2">Academia Atitude</h3>
-                 <p className="text-zinc-400 text-sm mb-4">Cursos gratuitos para seu crescimento.</p>
-                 <button className="flex items-center gap-2 text-brand-orange font-bold uppercase text-[10px] tracking-widest">Acessar Cursos <ArrowUpRight size={14}/></button>
+
+            {/* 2. ACADEMIA ATITUDE (Premium Card) */}
+            <div onClick={() => setActiveTab(NavigationTab.DISCIPLESHIP)} className="md:col-span-2 bg-zinc-900 rounded-[3rem] p-10 flex flex-col justify-between group cursor-pointer relative overflow-hidden border border-white/5 shadow-2xl">
+              <div className="absolute right-0 top-0 w-48 h-48 bg-brand-orange/10 blur-[80px] rounded-full group-hover:bg-brand-orange/30 transition-all duration-700"></div>
+              <div className="relative z-10 flex justify-between items-start">
+                 <div className="p-4 bg-white/10 rounded-2xl text-brand-orange backdrop-blur-md border border-white/5 group-hover:scale-110 transition-transform duration-500">
+                    <GraduationCap size={32} />
+                 </div>
+                 <ArrowUpRight size={24} className="text-zinc-600 group-hover:text-white transition-colors"/>
               </div>
+              <div className="relative z-10">
+                 <h3 className="text-2xl font-black text-white uppercase mb-2 tracking-tight">Academia Atitude</h3>
+                 <p className="text-zinc-400 text-sm font-medium mb-6 leading-relaxed">Conhecimento que transforma vidas. Acesse nossos cursos gratuitos e emita seu certificado.</p>
+                 <div className="flex items-center gap-4 text-brand-orange font-black uppercase text-[10px] tracking-widest">
+                    Começar minha trilha <ChevronRight size={14}/>
+                 </div>
+              </div>
+            </div>
+
+            {/* 3. AGENDA (Minimalist Card) */}
+            <div onClick={() => setActiveTab(NavigationTab.EVENTS)} className="md:col-span-1 bg-white rounded-[3rem] p-8 flex flex-col justify-center items-center text-center group cursor-pointer border border-zinc-100 shadow-xl hover:-translate-y-2 transition-all">
+               <div className="w-16 h-16 bg-zinc-50 rounded-2xl flex items-center justify-center text-brand-orange mb-6 shadow-inner group-hover:scale-110 transition-transform">
+                  <Calendar size={28} />
+               </div>
+               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">Próximo Evento</p>
+               <h3 className="text-lg font-black uppercase leading-tight mb-4 text-zinc-900">{events[0]?.title || "Agenda Atitude"}</h3>
+               <span className="bg-zinc-900 text-white text-[9px] font-black px-4 py-2 rounded-xl uppercase tracking-widest group-hover:bg-brand-orange transition-colors">
+                  {events[0]?.date || "Em breve"}
+               </span>
+            </div>
+
+            {/* 4. NOTÍCIA (Highlight Card) */}
+            <div onClick={() => setActiveTab(NavigationTab.NEWS)} className="md:col-span-1 bg-gradient-to-br from-brand-orange to-red-600 text-white rounded-[3rem] p-8 flex flex-col justify-between group cursor-pointer shadow-xl hover:shadow-orange-500/20 transition-all relative overflow-hidden">
+               <div className="absolute -bottom-6 -right-6 text-white/10 transform rotate-[-15deg] group-hover:scale-110 transition-transform">
+                  <FileText size={100} />
+               </div>
+               <div className="relative z-10">
+                  <div className="bg-white/20 backdrop-blur border border-white/20 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest w-fit">Informativo</div>
+               </div>
+               <div className="relative z-10 mt-8">
+                  <h3 className="text-xl font-black uppercase leading-[1.1] mb-2 line-clamp-3 tracking-tighter">{news[0]?.title || "Portal de Notícias"}</h3>
+                  <div className="flex items-center gap-2 text-white/80 font-black uppercase text-[9px] tracking-widest">
+                     Ler Mais <ArrowRight size={12}/>
+                  </div>
+               </div>
             </div>
         </div>
       </div>
@@ -154,7 +211,13 @@ const App = () => {
   const activeOrder = homeConfig.sectionOrder || INITIAL_HOME_CONFIG.sectionOrder || [];
 
   if (activeTab === NavigationTab.ADMIN) {
-    return <AdminScreen news={news} sermons={sermons} welcomeData={welcomeData} setWelcomeData={setWelcomeData} homeConfig={homeConfig} setHomeConfig={setHomeConfig} cells={cells} onLogout={() => setActiveTab(NavigationTab.HOME)} />;
+    return <AdminScreen 
+        notices={notices} news={news} sermons={sermons} welcomeData={welcomeData} 
+        setWelcomeData={setWelcomeData} homeConfig={homeConfig} setHomeConfig={setHomeConfig} 
+        cells={cells} events={events} discipleshipTracks={discipleshipTracks}
+        ministries={ministries}
+        onLogout={() => setActiveTab(NavigationTab.HOME)} 
+    />;
   }
 
   return (
@@ -175,7 +238,6 @@ const App = () => {
       {activeTab === NavigationTab.ABOUT && <AboutView data={aboutData} tenYearsData={tenYearsData} />}
       {activeTab === NavigationTab.GENERATOR && <PhotoGeneratorView frames={photoFrames} />}
 
-      {/* Persistent Back & Top Buttons */}
       <div className="fixed bottom-8 right-8 z-[100] flex flex-col gap-4">
         {activeTab !== NavigationTab.HOME && (
           <button 
@@ -197,9 +259,6 @@ const App = () => {
       </div>
 
       <DonationModal isOpen={showDonationModal} onClose={() => setShowDonationModal(false)} config={homeConfig} />
-      <StepModal isOpen={activeStepModal === 'VISITOR'} onClose={() => setActiveStepModal(null)} title="Boas Vindas" icon={User} colorClass="bg-blue-600">
-         <div className="text-center p-4">Estamos felizes em ter você conosco!</div>
-      </StepModal>
     </Layout>
   );
 }
