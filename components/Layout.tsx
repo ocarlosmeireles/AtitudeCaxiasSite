@@ -4,7 +4,8 @@ import { NavigationTab } from '../types';
 import { 
   Menu, X, Home, FileText, PlayCircle, Calendar, ShieldCheck, 
   BookOpen, Sun, Moon, Heart, Mail, MapPin, Phone, 
-  ChevronDown, Instagram, Youtube, Facebook, Sparkles, LayoutGrid, ArrowRight
+  ChevronDown, Instagram, Youtube, Facebook, Sparkles, LayoutGrid, ArrowRight,
+  Baby
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -12,10 +13,11 @@ interface LayoutProps {
   activeTab: NavigationTab;
   onNavigate: (tab: NavigationTab) => void;
   onDonate: () => void;
+  onCheckinKids?: () => void;
   config?: any;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onNavigate, onDonate, config }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onNavigate, onDonate, onCheckinKids, config }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false); 
@@ -25,6 +27,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onNavigate,
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Garantir que sempre inicie do topo ao mudar de tab
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [activeTab]);
 
   const toggleTheme = () => {
     const newTheme = isDark ? 'light' : 'dark';
@@ -43,14 +50,16 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onNavigate,
   ];
 
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-zinc-50 dark:bg-zinc-950 transition-colors duration-500">
+    <div className="min-h-screen flex flex-col font-sans bg-zinc-50 dark:bg-zinc-950 transition-colors duration-500 pt-[72px]">
       
-      <header className={`fixed left-0 right-0 z-50 transition-all duration-700 ${scrolled ? 'top-2 px-4' : 'top-0 px-0'}`}>
-        <div className={`max-w-7xl mx-auto transition-all duration-700 ${scrolled ? 'bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl rounded-full shadow-2xl py-2 px-6 border border-white/20 dark:border-white/10' : 'bg-transparent py-4 px-8'}`}>
+      {/* HEADER FIXO ULTRA-MODERNO */}
+      <header className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${scrolled ? 'py-2 px-4' : 'py-4 px-0'}`}>
+        <div className={`max-w-7xl mx-auto transition-all duration-500 ${scrolled ? 'bg-white/80 dark:bg-zinc-900/80 backdrop-blur-2xl rounded-full shadow-2xl border border-white/20 dark:border-white/10 py-2 px-6' : 'bg-transparent py-2 px-8'}`}>
           <div className="flex justify-between items-center">
             
+            {/* Logo Group */}
             <div className="flex items-center cursor-pointer group" onClick={() => onNavigate(NavigationTab.HOME)}>
-              <div className="font-black text-2xl tracking-tighter text-zinc-900 dark:text-white">
+              <div className={`font-black text-2xl tracking-tighter transition-colors duration-500 ${!scrolled && activeTab === NavigationTab.HOME ? 'text-white' : 'text-zinc-900 dark:text-white'}`}>
                 ATITUDE<span className="text-brand-orange">.</span>
               </div>
               <div className="hidden sm:block ml-3 pl-3 border-l border-zinc-200 dark:border-white/10">
@@ -58,12 +67,13 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onNavigate,
               </div>
             </div>
 
+            {/* Desktop Navigation - Pill Style */}
             <nav className="hidden lg:flex items-center gap-1 bg-zinc-100/50 dark:bg-black/20 p-1 rounded-full border border-zinc-200/20 dark:border-white/5">
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
-                  className={`flex items-center gap-2.5 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${activeTab === item.id ? 'bg-white dark:bg-zinc-800 text-brand-orange shadow-md' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'}`}
+                  className={`flex items-center gap-2.5 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${activeTab === item.id ? 'bg-white dark:bg-zinc-800 text-brand-orange shadow-md scale-105' : scrolled || activeTab !== NavigationTab.HOME ? 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white' : 'text-white/70 hover:text-white'}`}
                 >
                   {item.icon}
                   <span>{item.label}</span>
@@ -71,14 +81,21 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onNavigate,
               ))}
             </nav>
 
+            {/* Action Buttons */}
             <div className="flex items-center gap-3">
-              <button onClick={toggleTheme} className="hidden sm:flex p-2.5 rounded-full bg-white/10 dark:bg-black/20 text-zinc-500 hover:scale-110 transition-transform">
+              <button onClick={toggleTheme} className={`hidden sm:flex p-2.5 rounded-full transition-colors duration-500 ${!scrolled && activeTab === NavigationTab.HOME ? 'bg-white/10 text-white' : 'bg-zinc-100 dark:bg-black/20 text-zinc-500'}`}>
                 {isDark ? <Sun size={18} /> : <Moon size={18} />}
               </button>
-              <button onClick={onDonate} className="bg-zinc-900 dark:bg-brand-orange text-white px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-xl flex items-center gap-2 transform active:scale-95">
-                <Heart size={14} /> Doar
+              <button 
+                onClick={onDonate} 
+                className="bg-brand-orange text-white px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-orange-500/20 hover:scale-105 active:scale-95 flex items-center gap-2"
+              >
+                <Heart size={14} fill="currentColor"/> Doar
               </button>
-              <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden p-2.5 rounded-full bg-zinc-950 dark:bg-white text-white dark:text-zinc-900 shadow-lg">
+              <button 
+                onClick={() => setIsMobileMenuOpen(true)} 
+                className={`lg:hidden p-2.5 rounded-full shadow-lg transition-all duration-500 ${!scrolled && activeTab === NavigationTab.HOME ? 'bg-white text-zinc-950' : 'bg-zinc-950 dark:bg-white text-white dark:text-zinc-900'}`}
+              >
                 <LayoutGrid size={22} />
               </button>
             </div>
@@ -86,24 +103,43 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onNavigate,
         </div>
       </header>
 
-      {/* Mobile Menu */}
+      {/* NOVO MENU MOBILE - GLASS DRAWER */}
       <div className={`fixed inset-0 z-[110] transition-all duration-700 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-xl" onClick={() => setIsMobileMenuOpen(false)}></div>
-        <div className={`absolute bottom-0 left-0 right-0 max-h-[85vh] bg-white dark:bg-zinc-900 rounded-t-[3rem] shadow-2xl transition-transform duration-700 ${isMobileMenuOpen ? 'translate-y-0' : 'translate-y-full'}`}>
-           <div className="p-8 flex flex-col h-full max-w-2xl mx-auto">
-              <div className="w-12 h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full mx-auto mb-8 cursor-pointer" onClick={() => setIsMobileMenuOpen(false)}></div>
+        <div className={`absolute bottom-0 left-0 right-0 max-h-[90vh] bg-white dark:bg-zinc-900 rounded-t-[3.5rem] shadow-[0_-20px_80px_rgba(0,0,0,0.4)] transition-transform duration-700 ease-out ${isMobileMenuOpen ? 'translate-y-0' : 'translate-y-full'}`}>
+           <div className="p-10 flex flex-col h-full max-w-2xl mx-auto">
+              {/* Drag Handle Indicator */}
+              <div className="w-12 h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full mx-auto mb-12 cursor-pointer" onClick={() => setIsMobileMenuOpen(false)}></div>
               
-              <div className="grid grid-cols-2 gap-4 mb-10">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-orange mb-8 text-center">Navegação Principal</h3>
+
+              <div className="grid grid-cols-2 gap-4 mb-12">
                  {navItems.map((item) => (
-                    <button key={item.id} onClick={() => { onNavigate(item.id); setIsMobileMenuOpen(false); }} className={`flex flex-col items-center justify-center gap-3 p-6 rounded-3xl transition-all border ${activeTab === item.id ? 'bg-brand-orange border-brand-orange text-white shadow-xl' : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-100 dark:border-white/5 text-zinc-900 dark:text-zinc-300'}`}>
+                    <button 
+                      key={item.id} 
+                      onClick={() => { onNavigate(item.id); setIsMobileMenuOpen(false); }} 
+                      className={`flex flex-col items-center justify-center gap-4 p-8 rounded-[2.5rem] transition-all duration-500 border ${activeTab === item.id ? 'bg-brand-orange border-brand-orange text-white shadow-2xl scale-105 z-10' : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-100 dark:border-white/5 text-zinc-900 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-700'}`}
+                    >
                        <div className={`${activeTab === item.id ? 'text-white' : 'text-brand-orange'}`}>{item.icon}</div>
                        <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
                     </button>
                  ))}
-                 <button onClick={() => { onNavigate(NavigationTab.ADMIN); setIsMobileMenuOpen(false); }} className="flex flex-col items-center justify-center gap-3 p-6 rounded-3xl bg-zinc-950 dark:bg-white text-white dark:text-zinc-900 border border-zinc-800 dark:border-zinc-200 col-span-2 shadow-2xl">
+                 
+                 {/* Admin Access in Mobile */}
+                 <button 
+                    onClick={() => { onNavigate(NavigationTab.ADMIN); setIsMobileMenuOpen(false); }} 
+                    className="flex items-center justify-center gap-3 p-6 rounded-[2rem] bg-zinc-950 dark:bg-white text-white dark:text-zinc-900 border border-zinc-800 dark:border-zinc-200 col-span-2 shadow-2xl mt-4 active:scale-95 transition-transform"
+                 >
                     <ShieldCheck size={20} className="text-brand-orange"/>
-                    <span className="text-[10px] font-black uppercase tracking-widest">Portal do Líder / Login</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Área de Liderança</span>
                  </button>
+              </div>
+
+              {/* Bottom Social Support in Mobile */}
+              <div className="mt-auto pt-8 border-t border-zinc-100 dark:border-white/5 flex justify-center gap-8">
+                 <Instagram size={20} className="text-zinc-400"/>
+                 <Youtube size={20} className="text-zinc-400"/>
+                 <Facebook size={20} className="text-zinc-400"/>
               </div>
            </div>
         </div>
@@ -111,49 +147,76 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onNavigate,
 
       <main className="flex-grow">{children}</main>
 
-      {/* Footer Modernizado - Estética High-End */}
-      <footer className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white border-t border-zinc-100 dark:border-white/5 pt-24 pb-12 transition-colors duration-500">
-        <div className="max-w-7xl mx-auto px-8">
-          
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-20">
-            {/* Branding Column */}
-            <div className="lg:col-span-4 space-y-10">
+      {/* O Footer foi atualizado na rodada anterior e permanece funcional aqui */}
+      <footer className="bg-zinc-950 text-white pt-32 pb-12 relative overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-orange/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto px-8 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
+             <div className="bg-white/5 backdrop-blur-xl p-10 rounded-[3rem] border border-white/10 group hover:bg-brand-orange transition-all duration-500 cursor-pointer" onClick={onDonate}>
+                <div className="w-14 h-14 bg-brand-orange text-white rounded-2xl flex items-center justify-center mb-8 group-hover:bg-white group-hover:text-brand-orange transition-colors shadow-xl">
+                   <Heart size={28} fill="currentColor"/>
+                </div>
+                <h4 className="text-2xl font-black uppercase tracking-tight mb-4 leading-none">Generosidade <br/>que Transforma</h4>
+                <p className="text-zinc-400 group-hover:text-white/80 mb-8 font-medium">Financie projetos sociais e a expansão do Reino através do seu dízimo e oferta.</p>
+                <div className="flex items-center gap-3 font-black uppercase text-[10px] tracking-widest group-hover:translate-x-2 transition-transform">
+                   Quero Contribuir <ArrowRight size={16}/>
+                </div>
+             </div>
+
+             <div className="bg-white/5 backdrop-blur-xl p-10 rounded-[3rem] border border-white/10 group hover:bg-blue-600 transition-all duration-500 cursor-pointer" onClick={onCheckinKids}>
+                <div className="w-14 h-14 bg-blue-500 text-white rounded-2xl flex items-center justify-center mb-8 group-hover:bg-white group-hover:text-blue-600 transition-colors shadow-xl">
+                   <Baby size={28}/>
+                </div>
+                <h4 className="text-2xl font-black uppercase tracking-tight mb-4 leading-none">Check-in Kids <br/>Digital</h4>
+                <p className="text-zinc-400 group-hover:text-white/80 mb-8 font-medium">Agilize a entrada dos seus filhos no ministério infantil de forma digital e segura.</p>
+                <div className="flex items-center gap-3 font-black uppercase text-[10px] tracking-widest group-hover:translate-x-2 transition-transform">
+                   Fazer Check-in <ArrowRight size={16}/>
+                </div>
+             </div>
+
+             <div className="bg-white/5 backdrop-blur-xl p-10 rounded-[3rem] border border-white/10 group hover:bg-zinc-100 hover:text-zinc-900 transition-all duration-500 cursor-pointer">
+                <div className="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center mb-8 group-hover:bg-zinc-950 transition-colors shadow-xl">
+                   <MapPin size={28}/>
+                </div>
+                <h4 className="text-2xl font-black uppercase tracking-tight mb-4 leading-none">Visite a nossa <br/>Casa Hoje</h4>
+                <p className="text-zinc-400 group-hover:text-zinc-600 mb-8 font-medium">Av. Expedicionário José Amaro, 848 - Vila São Luis, Duque de Caxias - RJ.</p>
+                <a href="https://maps.google.com" target="_blank" className="flex items-center gap-3 font-black uppercase text-[10px] tracking-widest group-hover:translate-x-2 transition-transform">
+                   Como Chegar <ArrowRight size={16}/>
+                </a>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-24 border-t border-white/5 pt-24">
+            <div className="lg:col-span-5 space-y-10">
                <div className="space-y-4">
-                 <div className="font-black text-4xl tracking-tighter text-zinc-900 dark:text-white">
+                 <div className="font-black text-5xl tracking-tighter">
                    ATITUDE<span className="text-brand-orange">.</span>
                  </div>
-                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-orange leading-none">Duque de Caxias</p>
+                 <p className="text-[10px] font-black uppercase tracking-[0.6em] text-brand-orange leading-none">Duque de Caxias</p>
                </div>
-               
-               <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed text-sm max-w-sm font-medium">
-                  Somos uma igreja relevante que ama a Deus acima de tudo e ao próximo como a si mesmo. Nossa missão é conectar você ao seu propósito extraordinário através do Evangelho.
+               <p className="text-zinc-400 leading-relaxed text-lg max-w-md font-medium">
+                  Uma igreja apaixonada por Jesus e focada em pessoas. Acreditamos que o extraordinário de Deus está disponível para você agora mesmo.
                </p>
-
-               <div className="flex gap-3">
+               <div className="flex gap-4">
                   {[
-                    { icon: <Instagram size={20}/>, label: 'Instagram' },
-                    { icon: <Youtube size={20}/>, label: 'Youtube' },
-                    { icon: <Facebook size={20}/>, label: 'Facebook' }
+                    { icon: <Instagram size={24}/>, label: 'Instagram', url: 'https://instagram.com/atitudecaxias' },
+                    { icon: <Youtube size={24}/>, label: 'Youtube', url: 'https://youtube.com' },
+                    { icon: <Facebook size={24}/>, label: 'Facebook', url: 'https://facebook.com' }
                   ].map((social, i) => (
-                    <a 
-                      key={i} 
-                      href="#" 
-                      className="w-12 h-12 rounded-2xl bg-zinc-50 dark:bg-white/5 flex items-center justify-center text-zinc-400 hover:bg-brand-orange hover:text-white hover:shadow-xl hover:shadow-orange-500/20 transition-all duration-500 border border-zinc-100 dark:border-white/5"
-                    >
+                    <a key={i} href={social.url} target="_blank" className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:bg-brand-orange hover:text-white transition-all duration-500 border border-white/5">
                        {social.icon}
                     </a>
                   ))}
                </div>
             </div>
 
-            {/* Links Column */}
-            <div className="lg:col-span-2 space-y-8">
-               <h4 className="font-black uppercase text-[10px] tracking-[0.3em] text-zinc-400 dark:text-zinc-600 mb-8">Navegação</h4>
-               <ul className="space-y-5">
+            <div className="lg:col-span-3 space-y-10">
+               <h4 className="font-black uppercase text-[11px] tracking-[0.4em] text-zinc-600 border-b border-white/5 pb-4">Navegação</h4>
+               <ul className="grid grid-cols-1 gap-6">
                  {navItems.map(item => (
                     <li key={item.id}>
-                       <button onClick={() => onNavigate(item.id)} className="text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-brand-orange transition-colors flex items-center gap-2 group text-left">
-                          <span className="w-1 h-1 bg-brand-orange rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                       <button onClick={() => onNavigate(item.id)} className="text-sm font-black uppercase tracking-widest text-zinc-400 hover:text-white transition-all flex items-center gap-4 group">
+                          <span className="w-1.5 h-1.5 bg-brand-orange rounded-full scale-0 group-hover:scale-100 transition-transform"></span>
                           {item.label}
                        </button>
                     </li>
@@ -161,62 +224,45 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onNavigate,
                </ul>
             </div>
 
-            {/* Location Column */}
-            <div className="lg:col-span-3 space-y-8">
-               <h4 className="font-black uppercase text-[10px] tracking-[0.3em] text-zinc-400 dark:text-zinc-600 mb-8">Onde Estamos</h4>
-               <div className="space-y-6">
-                  <div className="flex items-start gap-4">
-                     <div className="w-10 h-10 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5 flex items-center justify-center shrink-0 text-brand-orange">
-                        <MapPin size={18}/>
+            <div className="lg:col-span-4 space-y-10">
+               <h4 className="font-black uppercase text-[11px] tracking-[0.4em] text-zinc-600 border-b border-white/5 pb-4">Atendimento</h4>
+               <div className="space-y-8">
+                  <div className="flex items-center gap-6 group cursor-pointer" onClick={() => window.open('mailto:contato@ibatitudecaxias.com.br')}>
+                     <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-brand-orange group-hover:scale-110 transition-transform">
+                        <Mail size={22}/>
                      </div>
-                     <div>
-                        <p className="text-xs font-bold text-zinc-600 dark:text-zinc-300 leading-relaxed">
-                           Av. Expedicionário José Amaro, 848 <br/> 
-                           Vila São Luis - Duque de Caxias, RJ
-                        </p>
-                        <a href="#" className="text-[9px] font-black uppercase tracking-widest text-brand-orange mt-2 inline-block hover:underline">Ver no Maps</a>
-                     </div>
+                     <p className="text-zinc-300 font-bold hover:text-white transition-colors">contato@ibatitudecaxias.com.br</p>
                   </div>
-                  <div className="flex items-center gap-4">
-                     <div className="w-10 h-10 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5 flex items-center justify-center shrink-0 text-brand-orange">
-                        <Mail size={18}/>
+                  <div className="flex items-center gap-6 group cursor-pointer" onClick={() => window.open('https://wa.me/5521964564689')}>
+                     <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-brand-orange group-hover:scale-110 transition-transform">
+                        <Phone size={22}/>
                      </div>
-                     <p className="text-xs font-bold text-zinc-600 dark:text-zinc-300">contato@ibatitudecaxias.com.br</p>
+                     <p className="text-zinc-300 font-bold hover:text-white transition-colors">(21) 96456-4689</p>
                   </div>
-                  <div className="flex items-center gap-4">
-                     <div className="w-10 h-10 rounded-xl bg-zinc-50 dark:bg-white/5 border border-zinc-100 dark:border-white/5 flex items-center justify-center shrink-0 text-brand-orange">
-                        <Phone size={18}/>
-                     </div>
-                     <p className="text-xs font-bold text-zinc-600 dark:text-zinc-300">(21) 96456-4689</p>
+                  <div className="pt-6">
+                     <button onClick={() => onNavigate(NavigationTab.ADMIN)} className="w-full bg-white text-zinc-950 py-5 rounded-[2rem] font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3 hover:bg-brand-orange hover:text-white transition-all shadow-2xl active:scale-95">
+                        <ShieldCheck size={20}/> Portal da Liderança
+                     </button>
                   </div>
-               </div>
-            </div>
-
-            {/* Admin Action Column */}
-            <div className="lg:col-span-3">
-               <div className="bg-zinc-50 dark:bg-zinc-900 p-10 rounded-[3rem] border border-zinc-100 dark:border-white/5 shadow-2xl relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-brand-orange/5 rounded-bl-full group-hover:scale-150 transition-transform duration-1000"></div>
-                  <h4 className="font-black uppercase text-[11px] tracking-[0.2em] text-zinc-900 dark:text-white mb-4">Área Administrativa</h4>
-                  <p className="text-xs font-medium text-zinc-500 mb-8 leading-relaxed">Acesso restrito para pastores e líderes da IBA-DC.</p>
-                  <button onClick={() => onNavigate(NavigationTab.ADMIN)} className="w-full bg-zinc-900 dark:bg-brand-orange text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-brand-orange dark:hover:bg-white dark:hover:text-brand-orange transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95 group">
-                    Painel de Controle <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform"/>
-                  </button>
                </div>
             </div>
           </div>
 
-          {/* Bottom Bar */}
-          <div className="pt-10 border-t border-zinc-200/50 dark:border-white/5 flex flex-col sm:flex-row justify-between items-center gap-6">
-             <p className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-400 dark:text-zinc-700 text-center sm:text-left">
-               © 2025 ATITUDE CAXIAS • VIVENDO O EXTRAORDINÁRIO
-             </p>
+          <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
+             <div className="text-center md:text-left">
+                <p className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-500 mb-2">
+                  © 2025 IGREJA BATISTA ATITUDE • DUQUE DE CAXIAS
+                </p>
+                <p className="text-[9px] text-zinc-700 font-bold uppercase tracking-widest">
+                  Tecnologia e Fé conectadas para o Reino de Deus.
+                </p>
+             </div>
              <div className="flex gap-10">
-                {['Privacidade', 'Termos', 'Cookies'].map(link => (
-                  <a key={link} href="#" className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-300 dark:text-zinc-800 hover:text-brand-orange transition-colors">{link}</a>
+                {['Privacidade', 'Termos de Uso', 'Cookies'].map(link => (
+                  <a key={link} href="#" className="text-[10px] font-black uppercase tracking-widest text-zinc-600 hover:text-brand-orange transition-colors">{link}</a>
                 ))}
              </div>
           </div>
-
         </div>
       </footer>
     </div>
