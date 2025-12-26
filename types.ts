@@ -1,6 +1,4 @@
 
-
-
 export interface Ministry {
   id: string;
   name: string;
@@ -36,11 +34,53 @@ export interface WelcomeSectionData {
   pastorName: string;
   pastorName2?: string;
   pastorRole: string;
-  pastorRole2?: string; // New: Specific role for the second pastor
+  pastorRole2?: string;
   mpsTitle: string;
   mpsDescription: string;
   spotifyPlaylistId: string;
   notebookLMAudioUrl?: string;
+}
+
+export interface Sermon {
+  id: string;
+  title: string;
+  preacher: string;
+  date: string;
+  youtubeUrl: string;
+  series?: string;
+  description: string;
+  moods?: string[];
+  duration?: string;
+  views?: number;
+}
+
+export interface NewsItem {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  date: string;
+  image: string;
+  author: string;
+  category: 'Igreja' | 'Mundo' | 'Social' | 'Artigo' | 'Kids' | 'Ensino';
+}
+
+export interface StepContent {
+  title: string;
+  content: string;
+}
+
+export interface Event {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  category: 'Geral' | 'Jovens' | 'Kids' | 'Mulheres' | 'Homens';
+  image?: string;
+  description?: string;
+  price: number;
+  pixKey?: string;
 }
 
 export interface ProjectAvanca {
@@ -53,20 +93,43 @@ export interface ProjectAvanca {
   pixKey?: string;
 }
 
-export interface AboutPageData {
-  heroImage: string;
-  history: string;
-  vision: string;
-  mission: string;
-  values: string;
+export interface GratitudePost {
+  id: string;
+  userName: string;
+  text: string;
+  createdAt: number;
+  category: string;
+  reactions?: {
+    amem: number;
+    gloria: number;
+    love: number;
+  };
 }
 
-export interface PhotoFrame {
+export interface SermonNote {
   id: string;
-  title: string;
-  frameUrl: string;
-  active: boolean;
+  sermonId: string;
+  text: string;
+  updatedAt: number;
 }
+
+export enum NavigationTab {
+  HOME = 'HOME',
+  NEWS = 'NEWS',
+  SERMONS = 'SERMONS',
+  MINISTRIES = 'MINISTRIES',
+  DISCIPLESHIP = 'DISCIPLESHIP',
+  EVENTS = 'EVENTS',
+  PRAYER = 'PRAYER',
+  ADMIN = 'ADMIN',
+  BAPTISM = 'BAPTISM',
+  ABOUT = 'ABOUT',
+  GENERATOR = 'GENERATOR',
+  COMMUNITY = 'COMMUNITY',
+  DASHBOARD = 'DASHBOARD'
+}
+
+export type AdminView = 'DASHBOARD' | 'NEWS' | 'SERMONS' | 'NOTICES' | 'MINISTRIES' | 'CELLS' | 'WELCOME' | 'EVENTS' | 'TENYEARS' | 'DISCIPLESHIP' | 'PRAYER_ADMIN' | 'BAPTISM_ADMIN' | 'AVANCA_ADMIN' | 'ABOUT_EDIT' | 'FRAMES_ADMIN' | 'CABINET';
 
 export interface HomeConfig {
   heroTitle: string;
@@ -107,49 +170,6 @@ export interface BaptismConfig {
   documents: { title: string; url: string }[];
 }
 
-export interface Event {
-  id: string;
-  title: string;
-  date: string;
-  time: string;
-  location: string;
-  category: 'Geral' | 'Jovens' | 'Kids' | 'Mulheres' | 'Homens';
-  image?: string;
-  description?: string;
-  price: number;
-  pixKey?: string;
-}
-
-export interface DevotionalResponse {
-  verse: string;
-  reference: string;
-  message: string;
-  prayer: string;
-}
-
-export interface NewsItem {
-  id: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  date: string;
-  image: string;
-  author: string;
-  category: 'Igreja' | 'Mundo' | 'Social' | 'Artigo' | 'Kids' | 'Ensino';
-}
-
-export interface Sermon {
-  id: string;
-  title: string;
-  preacher: string;
-  date: string;
-  youtubeUrl: string;
-  series?: string;
-  description: string;
-  // Fix: Added duration property
-  duration?: string;
-}
-
 export interface Notice {
   id: string;
   text: string;
@@ -157,49 +177,19 @@ export interface Notice {
   active: boolean;
 }
 
-export interface PrayerRequest {
+export interface PhotoFrame {
   id: string;
-  text: string;
-  mood?: string;
-  name?: string;
-  contact?: string; 
-  createdAt: number;
-  status?: 'pending' | 'prayed';
-  read: boolean;
-}
-
-export interface CabinetRequest {
-  id: string;
-  name: string;
-  phone: string;
-  // Fix: Renamed pastor to preferredPastor to match property usage in AdminView and PastoralSection
-  preferredPastor: string;
-  datePreference: string;
-  shift: string;
-  createdAt: number;
-  status: 'pending' | 'scheduled' | 'completed';
-  notes?: string;
-}
-
-export enum NavigationTab {
-  HOME = 'HOME',
-  NEWS = 'NEWS',
-  SERMONS = 'SERMONS',
-  MINISTRIES = 'MINISTRIES',
-  DISCIPLESHIP = 'DISCIPLESHIP',
-  EVENTS = 'EVENTS',
-  PRAYER = 'PRAYER',
-  ADMIN = 'ADMIN',
-  BAPTISM = 'BAPTISM',
-  ABOUT = 'ABOUT',
-  GENERATOR = 'GENERATOR'
-}
-
-export type AdminView = 'DASHBOARD' | 'NEWS' | 'SERMONS' | 'NOTICES' | 'MINISTRIES' | 'CELLS' | 'WELCOME' | 'EVENTS' | 'TENYEARS' | 'DISCIPLESHIP' | 'PRAYER_ADMIN' | 'BAPTISM_ADMIN' | 'AVANCA_ADMIN' | 'ABOUT_EDIT' | 'FRAMES_ADMIN' | 'CABINET';
-
-export interface StepContent {
   title: string;
-  content: string;
+  frameUrl: string;
+  active: boolean;
+}
+
+export interface AboutPageData {
+  heroImage: string;
+  history: string;
+  vision: string;
+  mission: string;
+  values: string;
 }
 
 export interface DiscipleshipTrack {
@@ -209,4 +199,34 @@ export interface DiscipleshipTrack {
   image: string;
   category?: string;
   steps: StepContent[];
+}
+
+export interface CabinetRequest {
+  id: string;
+  name: string;
+  phone: string;
+  preferredPastor: string;
+  datePreference: string;
+  shift: string;
+  createdAt: number;
+  status: 'pending' | 'scheduled' | 'completed';
+  notes?: string;
+}
+
+export interface PrayerRequest {
+  id: string;
+  text: string;
+  mood?: string;
+  name?: string;
+  contact?: string;
+  createdAt: number;
+  status?: 'pending' | 'prayed';
+  read: boolean;
+}
+
+export interface DevotionalResponse {
+  verse: string;
+  reference: string;
+  message: string;
+  prayer: string;
 }
